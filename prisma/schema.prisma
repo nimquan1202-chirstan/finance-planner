@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql" // không có url ở đây (v7)
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  name         String
+  transactions Transaction[]
+  wishlist     WishlistItem[]
+}
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum Category {
+  FOOD
+  TRANSPORT
+  SALARY
+  OTHER
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+model Transaction {
+  id          String          @id @default(cuid())
+  amount      Float
+  type        TransactionType
+  category    Category
+  description String?
+  date        DateTime        @default(now())
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model WishlistItem {
+  id          String   @id @default(cuid())
+  name        String
+  price       Float
+  priority    Priority @default(MEDIUM)
+  link        String?
+  purchased   Boolean  @default(false)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
