@@ -7,58 +7,45 @@ export function Navbar() {
   const pathname = usePathname();
 
   const navLinks = [
-    { href: "/dashboard", label: "Tổng quan", icon: "📊" },
-    { href: "/transactions", label: "Giao dịch", icon: "💳" },
+    { href: "/dashboard", label: "Tổng quan" },
+    { href: "/transactions", label: "Sổ giao dịch" },
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <header className="sticky top-0 z-50 bg-[#fafaf9]/90 backdrop-blur-md border-b border-zinc-200">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
         <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-lg shadow-sm group-hover:bg-blue-700 transition">
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="w-7 h-7 rounded-md bg-zinc-900 text-white flex items-center justify-center font-bold text-xs tracking-wider">
               FP
             </div>
-            <div>
-              <span className="font-bold text-slate-900 tracking-tight block text-base leading-none">
-                Finance Planner
-              </span>
-              <span className="text-[11px] text-slate-500 font-medium">PHY10615</span>
-            </div>
+            <span className="font-semibold text-zinc-900 text-sm tracking-tight">
+              Finance Planner
+            </span>
           </Link>
 
-          <nav className="hidden sm:flex items-center gap-1">
+          <nav className="flex items-center gap-1">
             {navLinks.map((item) => {
               const active = pathname === item.href;
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-1.5 ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
                     active
-                      ? "bg-slate-100 text-slate-900 font-semibold"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                      ? "bg-zinc-200/70 text-zinc-900 font-semibold"
+                      : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100"
                   }`}
                 >
-                  <span>{item.icon}</span>
-                  <span>{item.label}</span>
+                  {item.label}
                 </Link>
               );
             })}
           </nav>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="hidden md:flex flex-col text-right">
-            <span className="text-xs font-semibold text-slate-800">Sinh viên demo</span>
-            <span className="text-[11px] text-slate-500">demo@phy10615.vn</span>
-          </div>
-          <div className="w-8 h-8 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center font-bold text-xs text-slate-700">
-            SV
-          </div>
-          <span className="text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200/60 px-2 py-0.5 rounded-full">
-            Tuần 9 · FP2
-          </span>
+        <div className="flex items-center gap-3 text-xs text-zinc-500">
+          <span className="hidden sm:inline">demo@phy10615.vn</span>
         </div>
       </div>
     </header>

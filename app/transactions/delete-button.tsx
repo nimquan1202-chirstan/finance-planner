@@ -7,7 +7,7 @@ export function DeleteButton({ id }: { id: string }) {
     <form
       action={deleteTransaction}
       onSubmit={(e) => {
-        if (!confirm("Bạn có chắc chắn muốn xoá vĩnh viễn giao dịch này?")) {
+        if (!confirm("Bạn có chắc chắn muốn xoá giao dịch này?")) {
           e.preventDefault();
         }
       }}
@@ -15,8 +15,7 @@ export function DeleteButton({ id }: { id: string }) {
       <input type="hidden" name="id" value={id} />
       <button
         type="submit"
-        title="Xoá giao dịch"
-        className="px-2.5 py-1 text-xs font-medium text-slate-500 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-md transition cursor-pointer"
+        className="px-2 py-1 text-[11px] font-medium text-zinc-400 hover:text-rose-600 border border-zinc-200 hover:border-rose-200 rounded-md transition cursor-pointer"
         aria-label="Xoá giao dịch"
       >
         Xoá

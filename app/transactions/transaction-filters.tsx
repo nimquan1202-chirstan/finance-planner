@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import type { Filters } from "@/lib/validation";
 import { Category } from "@/generated/prisma/enums";
 
-const categoryLabels: Record<string, string> = {
+const CATEGORY_LABELS: Record<string, string> = {
   FOOD: "Ăn uống",
   TRANSPORT: "Di chuyển",
   ENTERTAINMENT: "Giải trí",
@@ -19,7 +19,6 @@ export function TransactionFilters(f: Filters) {
   const router = useRouter();
   const params = useSearchParams();
 
-  // đổi một tham số, giữ nguyên các tham số khác
   function pick(key: string, value: string) {
     const next = new URLSearchParams(params);
     if (value === "ALL") next.delete(key);
@@ -35,17 +34,17 @@ export function TransactionFilters(f: Filters) {
     f.range !== "this-month" || !!f.type || !!f.category;
 
   return (
-    <div className="bg-white border border-slate-200/80 rounded-xl p-4 shadow-sm space-y-3">
+    <div className="bg-white border border-zinc-200 rounded-xl p-4 space-y-3">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-          <span>🔍</span> Bộ lọc tìm kiếm
+        <span className="text-xs font-semibold text-zinc-800">
+          Bộ lọc
         </span>
         {hasActiveFilters && (
           <button
             onClick={reset}
-            className="text-xs text-blue-600 hover:text-blue-800 font-medium hover:underline cursor-pointer"
+            className="text-xs text-zinc-500 hover:text-zinc-800 font-medium cursor-pointer"
           >
-            Đặt lại mặc định
+            Đặt lại
           </button>
         )}
       </div>
@@ -53,12 +52,12 @@ export function TransactionFilters(f: Filters) {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {/* Thời gian */}
         <div className="space-y-1">
-          <label className="text-[11px] font-medium text-slate-500 block">Thời gian</label>
+          <label className="text-[11px] font-medium text-zinc-500 block">Thời gian</label>
           <select
             aria-label="Lọc theo thời gian"
             value={f.range}
             onChange={(e) => pick("range", e.target.value)}
-            className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs bg-slate-50 hover:bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            className="w-full px-2.5 py-1.5 border border-zinc-200 rounded-lg text-xs bg-zinc-50 hover:bg-white focus:bg-white focus:outline-none focus:border-zinc-400 transition"
           >
             <option value="this-month">Tháng này</option>
             <option value="last-month">Tháng trước</option>
@@ -68,32 +67,32 @@ export function TransactionFilters(f: Filters) {
 
         {/* Loại */}
         <div className="space-y-1">
-          <label className="text-[11px] font-medium text-slate-500 block">Loại giao dịch</label>
+          <label className="text-[11px] font-medium text-zinc-500 block">Loại</label>
           <select
             aria-label="Lọc theo loại"
             value={f.type ?? "ALL"}
             onChange={(e) => pick("type", e.target.value)}
-            className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs bg-slate-50 hover:bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            className="w-full px-2.5 py-1.5 border border-zinc-200 rounded-lg text-xs bg-zinc-50 hover:bg-white focus:bg-white focus:outline-none focus:border-zinc-400 transition"
           >
-            <option value="ALL">Tất cả loại (Thu & Chi)</option>
-            <option value="INCOME">Thu nhập</option>
-            <option value="EXPENSE">Chi tiêu</option>
+            <option value="ALL">Thu và Chi</option>
+            <option value="INCOME">Chỉ thu nhập</option>
+            <option value="EXPENSE">Chỉ chi tiêu</option>
           </select>
         </div>
 
         {/* Danh mục */}
         <div className="space-y-1">
-          <label className="text-[11px] font-medium text-slate-500 block">Danh mục</label>
+          <label className="text-[11px] font-medium text-zinc-500 block">Danh mục</label>
           <select
             aria-label="Lọc theo danh mục"
             value={f.category ?? "ALL"}
             onChange={(e) => pick("category", e.target.value)}
-            className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs bg-slate-50 hover:bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            className="w-full px-2.5 py-1.5 border border-zinc-200 rounded-lg text-xs bg-zinc-50 hover:bg-white focus:bg-white focus:outline-none focus:border-zinc-400 transition"
           >
             <option value="ALL">Tất cả danh mục</option>
             {Object.values(Category).map((c) => (
               <option key={c} value={c}>
-                {categoryLabels[c] || c} ({c})
+                {CATEGORY_LABELS[c] || c}
               </option>
             ))}
           </select>
