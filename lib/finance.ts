@@ -1,13 +1,7 @@
 import type { Filters } from "@/lib/validation";
 
-const vnd = new Intl.NumberFormat('vi-VN', {
-  style: 'currency',
-  currency: 'VND',
-  maximumFractionDigits: 0,
-});
-
 export function formatVND(amount: number) {
-  return vnd.format(amount);
+  return `${Math.round(amount).toLocaleString("vi-VN")} đ`;
 }
 
 export function startOfMonth(d = new Date()) {

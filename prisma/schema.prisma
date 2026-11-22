@@ -22,7 +22,11 @@ enum TransactionType {
 enum Category {
   FOOD
   TRANSPORT
+  ENTERTAINMENT
+  SHOPPING
+  BILLS
   SALARY
+  INVESTMENT
   OTHER
 }
 
