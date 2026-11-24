@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getDateRange } from "@/lib/finance";
 import { transactionFilterSchema } from "@/lib/validation";
+import { requireUser } from "@/lib/dal";
 import { TransactionForm } from "./transaction-form";
 import { TransactionFilters } from "./transaction-filters";
 import { TransactionList } from "./transaction-list";
@@ -12,12 +13,14 @@ interface PageProps {
 }
 
 export default async function TransactionsPage({ searchParams }: PageProps) {
+  const user = await requireUser();
   const resolvedParams = await searchParams;
   const filter = transactionFilterSchema
     .catch({ range: "this-month", sort: "desc" })
     .parse(resolvedParams);
 
   const where: Prisma.TransactionWhereInput = {
+    userId: user.id,
     date: getDateRange(filter.range),
   };
 
@@ -57,6 +60,9 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
           <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 tracking-tight">
             Sổ giao dịch
           </h1>
+          <p className="text-xs text-zinc-500 mt-0.5">
+            Tài khoản: <span className="font-medium text-zinc-800">{user.name}</span> ({user.email})
+          </p>
         </div>
 
         <Link

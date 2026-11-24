@@ -1,6 +1,8 @@
 import * as z from "zod";
 import {
-  Category, TransactionType,
+  Category,
+  TransactionType,
+  Priority,
 } from "@/generated/prisma/enums";
 
 export const transactionSchema = z.object({
@@ -26,16 +28,17 @@ type Values = Partial<Record<Field, string>>;
 export type FormState = {
   ok?: boolean;
   message?: string;
-  errors?: Partial<Record<Field, string[]>>;
-  values?: Values;
+  errors?: Partial<Record<string, string[]>>;
+  values?: Record<string, string>;
 };
 
 // FormData → object chuỗi (để trả lại form khi lỗi)
-export function readValues(data: FormData): Values {
-  const fields = Object.keys(transactionSchema.shape);
-  return Object.fromEntries(
-    fields.map((f) => [f, String(data.get(f) ?? "")]),
-  );
+export function readValues(data: FormData): Record<string, string> {
+  const obj: Record<string, string> = {};
+  for (const [key, val] of data.entries()) {
+    obj[key] = String(val);
+  }
+  return obj;
 }
 
 // Bộ lọc đọc từ URL: /transactions?range=…&type=…&category=…&q=…&sort=…
@@ -50,3 +53,20 @@ export const transactionFilterSchema = z.object({
 });
 
 export type Filters = z.infer<typeof transactionFilterSchema>;
+
+// Wishlist validation
+export const wishlistSchema = z.object({
+  name: z.string().trim()
+    .min(1, { error: "Nhập tên món đồ" })
+    .max(100, { error: "Tối đa 100 ký tự" }),
+  price: z.coerce.number()
+    .int({ error: "Phải là số nguyên" })
+    .positive({ error: "Giá phải lớn hơn 0" }),
+  priority: z.enum(Priority).default("MEDIUM"),
+  link: z.string().trim().optional(),
+});
+
+export const updateWishlistSchema = wishlistSchema.extend({
+  id: z.string().min(1, { error: "Thiếu ID món đồ" }),
+  purchased: z.coerce.boolean().optional(),
+});

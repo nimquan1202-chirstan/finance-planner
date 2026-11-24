@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import { formatVND, getDateRange } from "@/lib/finance";
+import { formatVND, getDateRange, wishlistProgress } from "@/lib/finance";
+import { requireUser } from "@/lib/dal";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +19,14 @@ const CATEGORY_MAP: Record<
   OTHER: { label: "Chi tiêu khác", color: "bg-zinc-500", hex: "#71717a" },
 };
 
+const PRIORITY_LABELS: Record<string, { label: string; badge: string }> = {
+  LOW: { label: "Thấp", badge: "bg-zinc-100 text-zinc-600" },
+  MEDIUM: { label: "Vừa", badge: "bg-amber-50 text-amber-700 border-amber-200" },
+  HIGH: { label: "Cao", badge: "bg-rose-50 text-rose-700 border-rose-200" },
+};
+
 export default async function DashboardPage() {
+  const user = await requireUser();
   const now = new Date();
   const thisMonthRange = getDateRange("this-month", now);
   const lastMonthRange = getDateRange("last-month", now);
@@ -33,40 +41,47 @@ export default async function DashboardPage() {
     totalChi,
     theo,
     recentTransactions,
+    wishlistItems,
   ] = await Promise.all([
     prisma.transaction.aggregate({
       _sum: { amount: true },
-      where: { type: "INCOME", date: thisMonthRange },
+      where: { userId: user.id, type: "INCOME", date: thisMonthRange },
     }),
     prisma.transaction.aggregate({
       _sum: { amount: true },
-      where: { type: "EXPENSE", date: thisMonthRange },
+      where: { userId: user.id, type: "EXPENSE", date: thisMonthRange },
     }),
     prisma.transaction.aggregate({
       _sum: { amount: true },
-      where: { type: "EXPENSE", date: lastMonthRange },
+      where: { userId: user.id, type: "EXPENSE", date: lastMonthRange },
     }),
     prisma.transaction.aggregate({
       _sum: { amount: true },
-      where: { type: "INCOME", date: lastMonthRange },
+      where: { userId: user.id, type: "INCOME", date: lastMonthRange },
     }),
     prisma.transaction.aggregate({
       _sum: { amount: true },
-      where: { type: "INCOME" },
+      where: { userId: user.id, type: "INCOME" },
     }),
     prisma.transaction.aggregate({
       _sum: { amount: true },
-      where: { type: "EXPENSE" },
+      where: { userId: user.id, type: "EXPENSE" },
     }),
     prisma.transaction.groupBy({
       by: ["category"],
       _sum: { amount: true },
-      where: { type: "EXPENSE" },
+      where: { userId: user.id, type: "EXPENSE" },
       orderBy: { _sum: { amount: "desc" } },
     }),
     prisma.transaction.findMany({
+      where: { userId: user.id },
       take: 6,
       orderBy: { date: "desc" },
+    }),
+    prisma.wishlistItem.findMany({
+      where: { userId: user.id },
+      take: 4,
+      orderBy: { priority: "desc" },
     }),
   ]);
 
@@ -131,14 +146,14 @@ export default async function DashboardPage() {
 
   return (
     <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-7">
-      {/* Tiêu đề ngắn gọn, tự nhiên, không văn mẫu */}
+      {/* Tiêu đề ngắn gọn, tự nhiên */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-zinc-200 pb-5">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 tracking-tight">
             Tổng quan tài chính
           </h1>
           <p className="text-xs text-zinc-500 mt-1">
-            Theo dõi thu chi và cơ cấu chi tiêu hàng tháng
+            Xin chào <strong className="text-zinc-800">{user.name}</strong> · Theo dõi thu chi và cơ cấu chi tiêu
           </p>
         </div>
 
@@ -148,6 +163,12 @@ export default async function DashboardPage() {
             className="px-3 py-1.5 rounded-lg border border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-800 font-medium text-xs transition no-underline"
           >
             Quản lý giao dịch
+          </Link>
+          <Link
+            href="/wishlist"
+            className="px-3 py-1.5 rounded-lg border border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-800 font-medium text-xs transition no-underline"
+          >
+            Mục tiêu tiết kiệm
           </Link>
           <a
             href="/api/transactions?format=csv"
@@ -159,7 +180,7 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* 3 Thẻ thống kê có phân cấp thứ bậc: Số dư to hơn (chiếm 2 cột), bỏ đường kẻ ngang lặp lại */}
+      {/* 3 Thẻ thống kê có phân cấp thứ bậc: Số dư to hơn (chiếm 2 cột) */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Số dư chiếm 2 cột, cỡ số lớn hơn hẳn */}
         <div className="md:col-span-2 bg-white rounded-xl border border-zinc-200 p-5 flex flex-col justify-between">
@@ -252,9 +273,9 @@ export default async function DashboardPage() {
                     );
                   })}
                 </svg>
-                {/* Trung tâm Donut */}
+
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-[11px] font-medium text-zinc-400">Tổng chi</span>
+                  <span className="text-[11px] font-medium text-zinc-400">Đã chi</span>
                   <span className="text-xs font-bold text-zinc-900 font-mono no-underline">
                     {formatVND(allExpense)}
                   </span>
@@ -262,37 +283,38 @@ export default async function DashboardPage() {
               </div>
             </div>
 
-            {/* Chi tiết từng danh mục với thanh màu riêng biệt */}
+            {/* Bảng danh sách tỷ trọng từng danh mục */}
             <div className="md:col-span-7 space-y-3">
-              {theo.map((d) => {
-                const amount = d._sum.amount ?? 0;
-                const percentage =
-                  allExpense > 0 ? Math.round((amount / allExpense) * 100) : 0;
-                const config = CATEGORY_MAP[d.category] || CATEGORY_MAP.OTHER;
+              {theo.map((item) => {
+                const amount = item._sum.amount ?? 0;
+                const percent = allExpense > 0 ? (amount / allExpense) * 100 : 0;
+                const config = CATEGORY_MAP[item.category] || CATEGORY_MAP.OTHER;
 
                 return (
-                  <div key={d.category} className="space-y-1">
+                  <div key={item.category} className="space-y-1">
                     <div className="flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2">
                         <span
-                          className="w-2.5 h-2.5 rounded-xs"
+                          className="w-2.5 h-2.5 rounded-full"
                           style={{ backgroundColor: config.hex }}
                         ></span>
                         <span className="font-medium text-zinc-800">{config.label}</span>
                       </div>
-                      <div className="flex items-center gap-3 font-mono">
-                        <span className="text-zinc-400">{percentage}%</span>
+                      <div className="flex items-center gap-2 font-mono">
+                        <span className="text-zinc-500 text-[11px]">
+                          {percent.toFixed(1).replace(".", ",")}%
+                        </span>
                         <span className="font-semibold text-zinc-900 no-underline">
                           {formatVND(amount)}
                         </span>
                       </div>
                     </div>
-                    {/* Thanh tiến độ có màu riêng tương ứng từng danh mục */}
-                    <div className="w-full bg-zinc-100 h-1.5 rounded-full overflow-hidden">
+                    {/* Thanh tiến độ có màu riêng biệt cho từng danh mục */}
+                    <div className="w-full h-1.5 bg-zinc-100 rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all duration-500"
                         style={{
-                          width: `${percentage}%`,
+                          width: `${percent}%`,
                           backgroundColor: config.hex,
                         }}
                       ></div>
@@ -301,6 +323,63 @@ export default async function DashboardPage() {
                 );
               })}
             </div>
+          </div>
+        )}
+      </div>
+
+      {/* Tiến độ Wishlist / Mục tiêu tiết kiệm trên Dashboard */}
+      <div className="bg-white rounded-xl border border-zinc-200 p-5 space-y-4">
+        <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
+          <div>
+            <h2 className="text-sm font-bold text-zinc-900">Mục tiêu tiết kiệm (Wishlist)</h2>
+            <p className="text-xs text-zinc-500 mt-0.5">Tiến độ tích lũy dựa trên số dư hiện tại</p>
+          </div>
+          <Link
+            href="/wishlist"
+            className="text-xs text-zinc-600 hover:text-zinc-900 font-medium no-underline"
+          >
+            Quản lý wishlist &rarr;
+          </Link>
+        </div>
+
+        {wishlistItems.length === 0 ? (
+          <div className="py-6 text-center text-xs text-zinc-500 space-y-1">
+            <p>Bạn chưa thêm mục tiêu mua sắm nào.</p>
+            <Link href="/wishlist" className="text-zinc-900 font-semibold underline">
+              + Thêm món đồ mong muốn
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {wishlistItems.map((item) => {
+              const p = wishlistProgress(balance, item.price);
+              const pInfo = PRIORITY_LABELS[item.priority] || PRIORITY_LABELS.MEDIUM;
+
+              return (
+                <div key={item.id} className="p-3.5 rounded-xl border border-zinc-100 bg-zinc-50/70 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-xs text-zinc-900 truncate">{item.name}</span>
+                    <span className={`px-2 py-0.5 text-[10px] font-medium rounded-full border ${pInfo.badge}`}>
+                      Ưu tiên {pInfo.label}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs font-mono">
+                    <span className="text-zinc-500">{formatVND(item.price)}</span>
+                    <span className={`font-bold ${p >= 100 ? "text-emerald-700" : "text-zinc-800"}`}>
+                      {p}% {p >= 100 ? "✓ Đủ tiền" : ""}
+                    </span>
+                  </div>
+                  <div className="w-full h-2 bg-zinc-200/70 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${
+                        p >= 100 ? "bg-emerald-600" : "bg-zinc-800"
+                      }`}
+                      style={{ width: `${p}%` }}
+                    ></div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

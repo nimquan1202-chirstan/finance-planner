@@ -2,8 +2,19 @@ import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getDateRange } from "@/lib/finance";
 import { transactionFilterSchema } from "@/lib/validation";
+import { getSession } from "@/lib/dal";
+import type { Prisma } from "@/generated/prisma/client";
 
 export async function GET(request: NextRequest) {
+  // Yêu cầu xác thực: chưa đăng nhập thì trả 401 Unauthorized
+  const session = await getSession();
+  if (!session) {
+    return Response.json(
+      { error: "Chưa đăng nhập" },
+      { status: 401 },
+    );
+  }
+
   const parsed = transactionFilterSchema.safeParse(
     Object.fromEntries(request.nextUrl.searchParams),
   );
@@ -13,10 +24,21 @@ export async function GET(request: NextRequest) {
       { status: 400 },
     );
   }
-  const { range, ...rest } = parsed.data;
+
+  const { range, q, sort, ...rest } = parsed.data;
+  const where: Prisma.TransactionWhereInput = {
+    userId: session.user.id,
+    date: getDateRange(range),
+    ...rest,
+  };
+
+  if (q) {
+    where.description = { contains: q, mode: "insensitive" };
+  }
+
   const rows = await prisma.transaction.findMany({
-    where: { date: getDateRange(range), ...rest },
-    orderBy: { date: "desc" },
+    where,
+    orderBy: { date: sort || "desc" },
   });
 
   const format = request.nextUrl.searchParams.get("format");

@@ -8,12 +8,63 @@ datasource db {
 }
 
 model User {
-  id           String        @id @default(cuid())
-  email        String        @unique
-  name         String
-  transactions Transaction[]
-  wishlist     WishlistItem[]
+  id            String         @id @default(cuid())
+  email         String         @unique
+  name          String
+  emailVerified Boolean        @default(false)
+  image         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @default(now()) @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  transactions  Transaction[]
+  wishlist      WishlistItem[]
 }
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  @@map("verification")
+}
+
 enum TransactionType {
   INCOME
   EXPENSE
@@ -35,6 +86,7 @@ enum Priority {
   MEDIUM
   HIGH
 }
+
 model Transaction {
   id          String          @id @default(cuid())
   amount      Float
@@ -44,15 +96,18 @@ model Transaction {
   date        DateTime        @default(now())
   userId      String
   user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
 }
 
 model WishlistItem {
-  id          String   @id @default(cuid())
-  name        String
-  price       Float
-  priority    Priority @default(MEDIUM)
-  link        String?
-  purchased   Boolean  @default(false)
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  name      String
+  price     Float
+  priority  Priority @default(MEDIUM)
+  link      String?
+  purchased Boolean  @default(false)
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
