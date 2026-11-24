@@ -35,8 +35,11 @@ export function TransactionForm() {
     localStorage.setItem("fp_last_category", cat);
   };
 
+  const selectStyle =
+    "w-full h-9 pl-3 pr-7 py-1.5 border border-zinc-200 rounded-lg text-xs bg-white text-zinc-800 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,<svg%20xmlns=\"http://www.w3.org/2000/svg\"%20width=\"16\"%20height=\"16\"%20fill=\"none\"%20stroke=\"%2371717a\"%20stroke-width=\"1.5\"%20viewBox=\"0 0 24 24\"><path%20stroke-linecap=\"round\"%20stroke-linejoin=\"round\"%20d=\"M6%209l6%206%206-6\"/></svg>')] bg-[length:13px] bg-[right_8px_center] bg-no-repeat focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition cursor-pointer";
+
   return (
-    <div className="bg-white border border-zinc-200 rounded-xl p-4 sm:p-5 space-y-3">
+    <div className="bg-white border border-zinc-200/80 rounded-lg p-4 sm:p-5 space-y-3">
       <div className="flex items-center justify-between border-b border-zinc-100 pb-2.5">
         <h2 className="text-sm font-bold text-zinc-900">Vừa tiêu gì?</h2>
         <span className="text-[11px] text-zinc-400">Nhấn Enter để thêm nhanh</span>
@@ -45,7 +48,7 @@ export function TransactionForm() {
       {state.ok && (
         <div
           role="status"
-          className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 text-xs flex items-center justify-between"
+          className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-md text-emerald-800 text-xs flex items-center justify-between"
         >
           <span>✓ {state.message}</span>
         </div>
@@ -59,7 +62,7 @@ export function TransactionForm() {
               name="type"
               aria-label="Loại"
               defaultValue={v.type ?? "EXPENSE"}
-              className="w-full px-2.5 py-1.5 border border-zinc-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-zinc-800 h-9"
+              className={selectStyle}
             >
               <option value="EXPENSE">Chi tiêu</option>
               <option value="INCOME">Thu nhập</option>
@@ -67,14 +70,14 @@ export function TransactionForm() {
             <Err msg={err.type} />
           </div>
 
-          {/* Danh mục (nhớ danh mục gần nhất) */}
+          {/* Danh mục */}
           <div className="sm:col-span-3">
             <select
               name="category"
               aria-label="Danh mục"
               value={lastCategory}
               onChange={handleCategoryChange}
-              className="w-full px-2.5 py-1.5 border border-zinc-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-zinc-800 h-9"
+              className={selectStyle}
             >
               {Object.values(Category).map((c) => (
                 <option key={c} value={c}>
@@ -92,9 +95,9 @@ export function TransactionForm() {
               type="number"
               min="1"
               step="1"
-              placeholder="Số tiền (đ)"
+              placeholder="Số tiền (₫)"
               defaultValue={v.amount}
-              className="w-full px-2.5 py-1.5 border border-zinc-300 rounded-lg text-xs bg-white font-mono focus:outline-none focus:ring-1 focus:ring-zinc-800 h-9"
+              className="w-full h-9 px-3 py-1.5 border border-zinc-200 rounded-lg text-xs bg-white text-zinc-900 placeholder:text-zinc-400 font-mono tabular-nums focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition"
             />
             <Err msg={err.amount} />
           </div>
@@ -106,13 +109,13 @@ export function TransactionForm() {
               type="date"
               aria-label="Ngày"
               defaultValue={v.date ?? today}
-              className="w-full px-2.5 py-1.5 border border-zinc-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-zinc-800 h-9"
+              className="w-full h-9 px-3 py-1.5 border border-zinc-200 rounded-lg text-xs bg-white text-zinc-800 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition"
             />
             <Err msg={err.date} />
           </div>
         </div>
 
-        {/* Mô tả + nút thêm cùng hàng */}
+        {/* Mô tả + nút thêm */}
         <div className="flex gap-2 items-start">
           <div className="flex-1">
             <input
@@ -120,14 +123,14 @@ export function TransactionForm() {
               type="text"
               placeholder="Nội dung khoản chi (VD: Cơm trưa, Cà phê...)"
               defaultValue={v.description}
-              className="w-full px-3 py-1.5 border border-zinc-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-zinc-800 h-9"
+              className="w-full h-9 px-3 py-1.5 border border-zinc-200 rounded-lg text-xs bg-white text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition"
             />
             <Err msg={err.description} />
           </div>
           <button
             type="submit"
             disabled={pending}
-            className="px-4 py-1.5 h-9 rounded-lg bg-zinc-900 hover:bg-zinc-800 disabled:bg-zinc-400 text-white font-medium text-xs transition shrink-0 cursor-pointer"
+            className="px-4 h-9 rounded-lg bg-zinc-900 hover:bg-zinc-800 disabled:bg-zinc-400 text-white font-medium text-xs transition shrink-0 cursor-pointer"
           >
             {pending ? "Đang lưu..." : "Thêm"}
           </button>

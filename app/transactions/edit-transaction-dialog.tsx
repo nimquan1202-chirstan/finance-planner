@@ -44,11 +44,14 @@ export function EditTransactionDialog({ transaction, onClose }: EditDialogProps)
 
   const dateValue = new Date(transaction.date).toISOString().split("T")[0];
 
+  const selectStyle =
+    "w-full h-9 pl-3 pr-7 py-1.5 border border-zinc-200 rounded-lg text-xs bg-white text-zinc-800 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,<svg%20xmlns=\"http://www.w3.org/2000/svg\"%20width=\"16\"%20height=\"16\"%20fill=\"none\"%20stroke=\"%2371717a\"%20stroke-width=\"1.5\"%20viewBox=\"0 0 24 24\"><path%20stroke-linecap=\"round\"%20stroke-linejoin=\"round\"%20d=\"M6%209l6%206%206-6\"/></svg>')] bg-[length:13px] bg-[right_8px_center] bg-no-repeat focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition cursor-pointer";
+
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white border border-zinc-200 rounded-xl max-w-md w-full p-5 space-y-4 shadow-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 bg-black/35 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-zinc-200/80 rounded-lg max-w-md w-full p-5 space-y-4 shadow-lg animate-in fade-in duration-200">
         <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
-          <h2 className="text-sm font-bold text-zinc-900">Chỉnh sửa giao dịch</h2>
+          <h2 className="text-sm font-bold text-zinc-900">Sửa khoản thu chi</h2>
           <button
             onClick={onClose}
             className="text-zinc-400 hover:text-zinc-700 text-sm p-1 rounded-md"
@@ -59,21 +62,21 @@ export function EditTransactionDialog({ transaction, onClose }: EditDialogProps)
         </div>
 
         {state.ok && (
-          <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 text-xs">
+          <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-md text-emerald-800 text-xs">
             ✓ {state.message}
           </div>
         )}
 
-        <form action={formAction} className="space-y-3.5">
+        <form action={formAction} className="space-y-3 text-xs">
           <input type="hidden" name="id" value={transaction.id} />
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2.5">
             <div className="space-y-1">
               <label className="text-xs font-medium text-zinc-700 block">Loại</label>
               <select
                 name="type"
                 defaultValue={transaction.type}
-                className="w-full px-2.5 py-1.5 border border-zinc-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-zinc-800"
+                className={selectStyle}
               >
                 <option value="EXPENSE">Chi tiêu</option>
                 <option value="INCOME">Thu nhập</option>
@@ -86,7 +89,7 @@ export function EditTransactionDialog({ transaction, onClose }: EditDialogProps)
               <select
                 name="category"
                 defaultValue={transaction.category}
-                className="w-full px-2.5 py-1.5 border border-zinc-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-zinc-800"
+                className={selectStyle}
               >
                 {Object.values(Category).map((c) => (
                   <option key={c} value={c}>
@@ -98,16 +101,16 @@ export function EditTransactionDialog({ transaction, onClose }: EditDialogProps)
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2.5">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-700 block">Số tiền (VND)</label>
+              <label className="text-xs font-medium text-zinc-700 block">Số tiền (₫)</label>
               <input
                 name="amount"
                 type="number"
                 min="1"
                 step="1"
                 defaultValue={Math.round(transaction.amount)}
-                className="w-full px-2.5 py-1.5 border border-zinc-300 rounded-lg text-xs bg-white font-mono focus:outline-none focus:ring-1 focus:ring-zinc-800"
+                className="w-full h-9 px-3 py-1.5 border border-zinc-200 rounded-lg text-xs bg-white text-zinc-900 font-mono tabular-nums focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition"
               />
               {err.amount && <p className="text-[11px] text-rose-600">{err.amount[0]}</p>}
             </div>
@@ -118,7 +121,7 @@ export function EditTransactionDialog({ transaction, onClose }: EditDialogProps)
                 name="date"
                 type="date"
                 defaultValue={dateValue}
-                className="w-full px-2.5 py-1.5 border border-zinc-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-zinc-800"
+                className="w-full h-9 px-3 py-1.5 border border-zinc-200 rounded-lg text-xs bg-white text-zinc-800 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition"
               />
               {err.date && <p className="text-[11px] text-rose-600">{err.date[0]}</p>}
             </div>
@@ -130,25 +133,25 @@ export function EditTransactionDialog({ transaction, onClose }: EditDialogProps)
               name="description"
               type="text"
               defaultValue={transaction.description ?? ""}
-              className="w-full px-2.5 py-1.5 border border-zinc-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-zinc-800"
+              className="w-full h-9 px-3 py-1.5 border border-zinc-200 rounded-lg text-xs bg-white text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition"
             />
             {err.description && (
               <p className="text-[11px] text-rose-600">{err.description[0]}</p>
             )}
           </div>
 
-          <div className="pt-2 flex items-center justify-end gap-2">
+          <div className="pt-2 flex items-center justify-end gap-2 border-t border-zinc-100">
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-1.5 rounded-lg border border-zinc-300 text-zinc-700 hover:bg-zinc-50 text-xs font-medium"
+              className="px-3 py-1.5 h-8 rounded-lg border border-zinc-200 text-zinc-700 hover:bg-zinc-50 text-xs font-medium transition"
             >
               Hủy
             </button>
             <button
               type="submit"
               disabled={pending}
-              className="px-4 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-medium disabled:bg-zinc-400"
+              className="px-4 py-1.5 h-8 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-medium disabled:bg-zinc-400 transition"
             >
               {pending ? "Đang lưu..." : "Lưu thay đổi"}
             </button>

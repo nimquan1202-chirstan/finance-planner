@@ -1,7 +1,7 @@
 import type { Filters } from "@/lib/validation";
 
 export function formatVND(amount: number) {
-  return `${Math.round(amount).toLocaleString("vi-VN")} đ`;
+  return `${Math.round(amount).toLocaleString("vi-VN")} ₫`;
 }
 
 export function startOfMonth(d = new Date()) {

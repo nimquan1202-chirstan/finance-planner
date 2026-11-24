@@ -5,7 +5,6 @@ import { requireUser } from "@/lib/dal";
 import { TransactionForm } from "./transaction-form";
 import { TransactionFilters } from "./transaction-filters";
 import { TransactionList } from "./transaction-list";
-import Link from "next/link";
 import type { Prisma } from "@/generated/prisma/client";
 
 interface PageProps {
@@ -53,24 +52,15 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
     .reduce((sum, r) => sum + r.amount, 0);
 
   return (
-    <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+    <main className="max-w-5xl mx-auto px-4 sm:px-6 py-7 space-y-6">
       {/* Header gọn gàng */}
-      <div className="flex items-center justify-between border-b border-zinc-200 pb-4">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 tracking-tight">
-            Sổ giao dịch
-          </h1>
-          <p className="text-xs text-zinc-500 mt-0.5">
-            Tài khoản: <span className="font-medium text-zinc-800">{user.name}</span> ({user.email})
-          </p>
-        </div>
-
-        <Link
-          href="/dashboard"
-          className="px-3 py-1.5 rounded-lg border border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-800 font-medium text-xs transition"
-        >
-          ← Tổng quan
-        </Link>
+      <div className="border-b border-zinc-200/80 pb-4">
+        <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 tracking-tight">
+          Sổ giao dịch
+        </h1>
+        <p className="text-xs text-zinc-500 mt-0.5">
+          Theo dõi chi tiết các khoản thu chi
+        </p>
       </div>
 
       {/* Thanh nhập nhanh: Vừa tiêu gì? */}

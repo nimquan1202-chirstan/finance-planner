@@ -96,11 +96,11 @@ export function TransactionList({
   const groupKeys = Object.keys(grouped);
 
   return (
-    <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden relative">
+    <div className="bg-white border border-zinc-200/80 rounded-lg overflow-hidden relative">
       {/* Toast thông báo */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-zinc-900 text-white px-4 py-2 rounded-lg text-xs font-medium shadow-lg animate-in slide-in-from-bottom-2">
-          ✓ {toastMessage}
+        <div className="fixed bottom-6 right-6 z-50 bg-zinc-900 text-white px-4 py-2.5 rounded-lg text-xs font-medium shadow-xl border border-zinc-800 animate-in slide-in-from-bottom-2">
+          {toastMessage}
         </div>
       )}
 
@@ -113,12 +113,12 @@ export function TransactionList({
       )}
 
       {transactions.length === 0 ? (
-        <div className="py-16 px-4 text-center space-y-1.5 text-xs text-zinc-500">
-          <p className="font-semibold text-zinc-700 text-sm">
-            Chưa có giao dịch nào
+        <div className="py-12 px-4 text-center space-y-2 text-xs text-zinc-500">
+          <p className="font-semibold text-zinc-800 text-sm">
+            Chưa có giao dịch nào trong khoảng thời gian này
           </p>
           <p className="text-zinc-400">
-            Không tìm thấy bản ghi phù hợp. Bạn có thể thêm giao dịch mới ở thanh bên trên hoặc đặt lại bộ lọc.
+            Thử đổi bộ lọc thời gian hoặc nhập một khoản mới ở thanh phía trên.
           </p>
         </div>
       ) : (
@@ -145,7 +145,6 @@ export function TransactionList({
                     >
                       {/* Trái: Chấm màu danh mục + Mô tả + Tên danh mục nhỏ */}
                       <div className="flex items-center gap-3 min-w-0 flex-1">
-                        {/* Chấm màu đồng bộ với Donut chart */}
                         <span
                           className="w-2.5 h-2.5 rounded-full shrink-0"
                           style={{ backgroundColor: catConfig.hex }}
@@ -162,10 +161,10 @@ export function TransactionList({
                         </div>
                       </div>
 
-                      {/* Phải: Số tiền căn phải font mono + Nút tương tác khi hover */}
+                      {/* Phải: Số tiền căn phải font mono tabular-nums + Nút xoá khi hover */}
                       <div className="flex items-center gap-3 shrink-0">
                         <span
-                          className={`font-semibold font-mono text-sm sm:text-base text-right ${
+                          className={`font-semibold font-mono tabular-nums text-sm sm:text-base text-right ${
                             isIncome ? "text-emerald-700" : "text-zinc-900"
                           }`}
                         >
@@ -173,7 +172,6 @@ export function TransactionList({
                           {formatVND(t.amount)}
                         </span>
 
-                        {/* Nút xoá hiển thị rõ khi hover */}
                         <button
                           type="button"
                           onClick={(e) => handleDelete(e, t.id)}
@@ -194,11 +192,11 @@ export function TransactionList({
 
       {/* Hàng tổng ở cuối danh sách */}
       {transactions.length > 0 && (
-        <div className="bg-zinc-50/90 border-t border-zinc-200 px-4 py-3 text-xs text-zinc-600 flex flex-wrap items-center justify-between gap-2">
+        <div className="bg-zinc-50/90 border-t border-zinc-200/80 px-4 py-3 text-xs text-zinc-600 flex flex-wrap items-center justify-between gap-2">
           <span>
-            Đang xem <strong className="font-mono text-zinc-900">{transactions.length}</strong> khoản
+            Đang xem <strong className="font-mono tabular-nums text-zinc-900">{transactions.length}</strong> khoản
           </span>
-          <div className="flex items-center gap-4 font-mono text-[11px] sm:text-xs">
+          <div className="flex items-center gap-4 font-mono tabular-nums text-[11px] sm:text-xs">
             <span>
               Chi: <strong className="text-zinc-900">{formatVND(totalExpense)}</strong>
             </span>

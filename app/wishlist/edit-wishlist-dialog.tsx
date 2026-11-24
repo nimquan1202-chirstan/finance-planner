@@ -27,14 +27,17 @@ export function EditWishlistDialog({ item, onClose }: EditWishlistDialogProps) {
     }
   }, [state.ok, onClose]);
 
+  const selectStyle =
+    "w-full h-9 pl-3 pr-7 py-1.5 border border-zinc-200 rounded-lg text-xs bg-white text-zinc-800 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,<svg%20xmlns=\"http://www.w3.org/2000/svg\"%20width=\"16\"%20height=\"16\"%20fill=\"none\"%20stroke=\"%2371717a\"%20stroke-width=\"1.5\"%20viewBox=\"0 0 24 24\"><path%20stroke-linecap=\"round\"%20stroke-linejoin=\"round\"%20d=\"M6%209l6%206%206-6\"/></svg>')] bg-[length:13px] bg-[right_8px_center] bg-no-repeat focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition cursor-pointer";
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 backdrop-blur-xs p-4">
       <div
-        className="bg-white rounded-2xl border border-zinc-200 shadow-xl w-full max-w-md p-5 space-y-4"
+        className="bg-white rounded-lg border border-zinc-200 shadow-xl w-full max-w-md p-5 space-y-4"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
-          <h3 className="text-sm font-bold text-zinc-900">Chỉnh sửa mục tiêu mua sắm</h3>
+          <h3 className="text-sm font-bold text-zinc-900">Sửa mục tiêu mua sắm</h3>
           <button
             type="button"
             onClick={onClose}
@@ -45,7 +48,7 @@ export function EditWishlistDialog({ item, onClose }: EditWishlistDialogProps) {
         </div>
 
         {state.ok && (
-          <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 text-xs">
+          <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-md text-emerald-800 text-xs">
             ✓ {state.message}
           </div>
         )}
@@ -60,12 +63,12 @@ export function EditWishlistDialog({ item, onClose }: EditWishlistDialogProps) {
               type="text"
               defaultValue={item.name}
               required
-              className="w-full px-3 py-1.5 border border-zinc-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-zinc-800 h-9"
+              className="w-full h-9 px-3 py-1.5 border border-zinc-200 rounded-lg text-xs bg-white text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition"
             />
           </div>
 
           <div className="space-y-1">
-            <label className="font-medium text-zinc-700">Giá tiền (VND)</label>
+            <label className="font-medium text-zinc-700">Giá tiền (₫)</label>
             <input
               name="price"
               type="number"
@@ -73,7 +76,7 @@ export function EditWishlistDialog({ item, onClose }: EditWishlistDialogProps) {
               step="1"
               defaultValue={item.price}
               required
-              className="w-full px-3 py-1.5 border border-zinc-300 rounded-lg text-xs bg-white font-mono focus:outline-none focus:ring-1 focus:ring-zinc-800 h-9"
+              className="w-full h-9 px-3 py-1.5 border border-zinc-200 rounded-lg text-xs bg-white text-zinc-900 placeholder:text-zinc-400 font-mono tabular-nums focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition"
             />
           </div>
 
@@ -82,7 +85,7 @@ export function EditWishlistDialog({ item, onClose }: EditWishlistDialogProps) {
             <select
               name="priority"
               defaultValue={item.priority}
-              className="w-full px-2.5 py-1.5 border border-zinc-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-zinc-800 h-9"
+              className={selectStyle}
             >
               <option value="LOW">Ưu tiên: Thấp</option>
               <option value="MEDIUM">Ưu tiên: Vừa</option>
@@ -96,7 +99,7 @@ export function EditWishlistDialog({ item, onClose }: EditWishlistDialogProps) {
               name="link"
               type="text"
               defaultValue={item.link ?? ""}
-              className="w-full px-3 py-1.5 border border-zinc-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-zinc-800 h-9"
+              className="w-full h-9 px-3 py-1.5 border border-zinc-200 rounded-lg text-xs bg-white text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition"
             />
           </div>
 
@@ -104,14 +107,14 @@ export function EditWishlistDialog({ item, onClose }: EditWishlistDialogProps) {
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-1.5 rounded-lg border border-zinc-300 hover:bg-zinc-50 text-zinc-700 font-medium"
+              className="px-3 py-1.5 h-8 rounded-lg border border-zinc-200 hover:bg-zinc-50 text-zinc-700 font-medium transition"
             >
               Hủy
             </button>
             <button
               type="submit"
               disabled={pending}
-              className="px-4 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 disabled:bg-zinc-400 text-white font-medium"
+              className="px-4 py-1.5 h-8 rounded-lg bg-zinc-900 hover:bg-zinc-800 disabled:bg-zinc-400 text-white font-medium transition"
             >
               {pending ? "Đang lưu..." : "Cập nhật"}
             </button>
