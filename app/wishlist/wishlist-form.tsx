@@ -48,7 +48,7 @@ export function WishlistForm() {
               type="number"
               min="1"
               step="1"
-              placeholder="Giá tiền (₫)"
+              placeholder="Giá tiền (đ)"
               defaultValue={v.price}
               required
               className="w-full h-9 px-3 py-1.5 border border-zinc-200 rounded-lg text-xs bg-white text-zinc-900 placeholder:text-zinc-400 font-mono tabular-nums focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition"

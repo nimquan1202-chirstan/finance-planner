@@ -103,7 +103,7 @@ export function EditTransactionDialog({ transaction, onClose }: EditDialogProps)
 
           <div className="grid grid-cols-2 gap-2.5">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-700 block">Số tiền (₫)</label>
+              <label className="text-xs font-medium text-zinc-700 block">Số tiền (đ)</label>
               <input
                 name="amount"
                 type="number"

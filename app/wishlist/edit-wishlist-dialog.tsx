@@ -68,7 +68,7 @@ export function EditWishlistDialog({ item, onClose }: EditWishlistDialogProps) {
           </div>
 
           <div className="space-y-1">
-            <label className="font-medium text-zinc-700">Giá tiền (₫)</label>
+            <label className="font-medium text-zinc-700">Giá tiền (đ)</label>
             <input
               name="price"
               type="number"

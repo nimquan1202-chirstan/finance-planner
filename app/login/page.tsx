@@ -219,7 +219,7 @@ export default function LoginPage() {
           <div className="p-4 bg-white border border-zinc-200/80 rounded-lg space-y-3 shadow-xs">
             <div className="flex items-center justify-between text-xs">
               <span className="text-zinc-500 font-medium">Số dư khả dụng</span>
-              <span className="font-mono tabular-nums font-bold text-zinc-900">12.500.000 ₫</span>
+              <span className="font-mono tabular-nums font-bold text-zinc-900">12.500.000 đ</span>
             </div>
 
             <div className="space-y-1">
