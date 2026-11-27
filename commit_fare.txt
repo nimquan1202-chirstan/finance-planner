@@ -1,0 +1,12 @@
+feat: implement FARE-style vertical sidebar, custom budget ratios, and purchasing power algorithm
+
+- Core architectural improvements:
+  1. Branding: New custom SVG Logo component with geometric vault & growth motif.
+  2. Navigation: FARE-inspired responsive vertical sidebar (AppLayoutWrapper) with Lucide-style SVG icons and integrated user profile, keeping public pages centered.
+  3. Budget Flexibility: Custom budget ratios (ruleNeedsPct, ruleWantsPct, ruleSavingsPct) with interactive BudgetRuleDialog and Server Action updateBudgetRuleAction.
+  4. Decision Support: Purchasing power algorithm (calculateAffordability) for wishlist items with real-time viability badges and smart recommendations.
+  5. Cashflow Analytics: Advanced transaction summary bar with income, expense, net cashflow, and top spending category.
+  6. Minimalist Design: Stripped purple gradients, glassmorphism blur, excess emojis, and redundant marketing cards in favor of clean Pine Green (#183d2e) and Be Vietnam Pro typography.
+- Testing & Docs:
+  - 30/30 Vitest unit tests passing (+5 new tests for custom ratios and affordability).
+  - Updated AI_LOG.md and README.md with milestone documentation.

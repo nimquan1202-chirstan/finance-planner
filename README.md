@@ -42,7 +42,7 @@ Mở trình duyệt tại [http://localhost:3000](http://localhost:3000).
 ## 🧪 Kiểm thử & Build (Testing & Production Build)
 
 ```bash
-# Chạy toàn bộ 25 bài kiểm thử đơn vị với Vitest
+# Chạy toàn bộ 30 bài kiểm thử đơn vị với Vitest
 npm test
 
 # Kiểm tra an toàn kiểu dữ liệu TypeScript
@@ -69,16 +69,20 @@ npm run build
 - [x] Route Handler `GET /api/transactions` hỗ trợ lọc JSON và xuất file CSV.
 - [x] **Bảo vệ chống CSV / Formula Injection:** tự động xử lý và vô hiệu hoá các ký tự nguy hiểm (`=`, `+`, `-`, `@`, `\t`, `\r`) trước khi xuất CSV.
 
-### 3. Tính năng nâng cao & Trực quan hoá tài chính (`v1.0` / Peer Features)
-- [x] **Phân tích Quy tắc 50/30/20:** Phân loại chi tiêu thành Thiết yếu (Needs), Mong muốn (Wants) và Tích lũy (Savings), hiển thị thanh tiến độ so với tỷ lệ chuẩn.
-- [x] **Chuỗi ngày ghi chép liên tiếp (Streak 🔥):** Theo dõi số ngày liên tục người dùng cập nhật tài chính để xây dựng thói quen.
+### 3. Tính năng nâng cao & Trực quan hoá tài chính (`v1.0` / Peer & FARE Features)
+- [x] **Bố cục Sidebar hiện đại (FARE Layout):** Thanh điều hướng dọc cố định bên trái (Desktop Sidebar) và Mobile Drawer linh hoạt, thay thế thanh ngang truyền thống.
+- [x] **Logo thương hiệu hình học riêng:** Biểu tượng két an toàn và mầm tăng trưởng tài chính thay cho ô chữ "FP".
+- [x] **Phân tích Quy tắc 50/30/20 & Tùy chỉnh tỷ lệ linh hoạt:** Cho phép người dùng tùy chỉnh tỷ lệ Thiết yếu / Mong muốn / Tích lũy (50/30/20, 60/20/20, 40/30/30...) lưu trực tiếp vào cơ sở dữ liệu.
+- [x] **Thuật toán đánh giá khả năng mua (Purchasing Power):** Đánh giá tính khả thi tài chính của từng món wishlist dựa trên số dư khả dụng, hạn chót và dòng tiền tiết kiệm hàng tháng.
+- [x] **Thống kê dòng tiền nâng cao trong Sổ giao dịch:** Tổng thu, tổng chi, dòng tiền ròng và danh mục chi tiêu lớn nhất trong kỳ lọc.
+- [x] **Chuỗi ngày ghi chép liên tiếp (Streak):** Theo dõi số ngày liên tục người dùng cập nhật tài chính bằng icon SVG đồng nhất.
 - [x] **Dự báo số dư cuối tháng (Month-end Forecast):** Dự phóng chi tiêu và số dư cuối tháng dựa trên mức chi trung bình mỗi ngày kèm trạng thái cảnh báo (An toàn / Cảnh báo / Thâm hụt).
 - [x] **Mục tiêu mua sắm có Hạn chót (Wishlist Target Date):**
   - Tự động tính % tiến độ tích lũy dựa trên số dư hiện tại.
   - Thông báo khi chạm các mốc tiết kiệm 50%, 75%, 100% (không lặp lại qua LocalStorage).
   - Tính toán số ngày còn lại và tốc độ tiết kiệm cần thiết mỗi ngày (`neededPerDay`), cảnh báo nếu quá hạn.
 - [x] **Bảng hỗ trợ tiếp cận (A11y Data Table):** Thay thế biểu đồ thuần hình ảnh bằng bảng dữ liệu chi tiết có thể đọc bởi trình đọc màn hình, tích hợp cảnh báo ngân sách danh mục (mốc 80% cảnh báo, mốc 100% vượt ngân sách).
-- [x] **Giao diện tinh gọn:** Bố cục nhất quán (max-width chung), bỏ các nút trùng lặp, dùng bo góc 8px thanh lịch, font monospace `tabular-nums` hiển thị tiền tệ `đ` chuẩn xác.
+- [x] **Giao diện tinh gọn:** Hạn chế màu tím xanh, bỏ glassmorphism, bán kính bo góc chuẩn 10px, typography `tabular-nums` hiển thị tiền tệ `đ` chuẩn xác.
 
 ---
 
@@ -112,5 +116,5 @@ npm run build
 - **Database & ORM:** PostgreSQL (Neon Cloud) + Prisma ORM 7 (`@prisma/adapter-pg`)
 - **Authentication:** Better Auth 1.7 (Email/Password + GitHub OAuth)
 - **Validation:** Zod 4
-- **Testing:** Vitest 5 (25 unit tests bao phủ các ca biên và logic tài chính)
+- **Testing:** Vitest 5 (30 unit tests bao phủ các ca biên, logic tài chính, tỷ lệ ngân sách và thuật toán đánh giá khả năng mua)
 - **Tài liệu AI:** Xem chi tiết tại [AI_LOG.md](./AI_LOG.md)

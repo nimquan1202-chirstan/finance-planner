@@ -11,6 +11,7 @@ import {
   calculateWishlistPace,
   calculateBudgetStatus,
   sanitizeCsvField,
+  calculateAffordability,
 } from "@/lib/finance";
 
 describe("wishlistProgress", () => {
@@ -139,6 +140,21 @@ describe("calculate503020Rule", () => {
     expect(res.needs.percent).toBe(50);
     expect(res.wants.percent).toBe(50);
   });
+
+  test("tùy chỉnh tỷ lệ ngân sách linh hoạt (ví dụ 60/20/20)", () => {
+    const expenses = [
+      { category: "FOOD", amount: 6_000_000 },
+      { category: "SHOPPING", amount: 2_000_000 },
+    ];
+    const res = calculate503020Rule(expenses, 10_000_000, {
+      needs: 60,
+      wants: 20,
+      savings: 20,
+    });
+    expect(res.needs.targetPercent).toBe(60);
+    expect(res.wants.targetPercent).toBe(20);
+    expect(res.savings.targetPercent).toBe(20);
+  });
 });
 
 describe("calculateStreak", () => {
@@ -261,5 +277,34 @@ describe("sanitizeCsvField", () => {
   test("xử lý null và undefined an toàn", () => {
     expect(sanitizeCsvField(null)).toBe('""');
     expect(sanitizeCsvField(undefined)).toBe('""');
+  });
+});
+
+describe("calculateAffordability", () => {
+  test("đủ khả năng mua ngay khi số dư >= giá", () => {
+    const res = calculateAffordability(5_000_000, 10_000_000, 1_000_000, null);
+    expect(res.score).toBe("READY");
+    expect(res.isAffordableNow).toBe(true);
+  });
+
+  test("khả thi cao khi tích lũy kịp trước hạn chót", () => {
+    const now = new Date(2026, 10, 1);
+    const deadline = new Date(2026, 11, 31); // ~2 tháng
+    const res = calculateAffordability(5_000_000, 1_000_000, 2_000_000, deadline, now);
+    expect(res.score).toBe("HIGH");
+    expect(res.isAffordableNow).toBe(false);
+  });
+
+  test("cảnh báo quá hạn khi ngày đích đã qua mà chưa đủ số dư", () => {
+    const now = new Date(2026, 10, 20);
+    const pastDeadline = new Date(2026, 10, 10);
+    const res = calculateAffordability(5_000_000, 1_000_000, 1_000_000, pastDeadline, now);
+    expect(res.score).toBe("OVERDUE");
+  });
+
+  test("khả thi thấp khi thâm hụt lớn và cần nhiều tháng tích lũy", () => {
+    const res = calculateAffordability(20_000_000, 2_000_000, 500_000, null);
+    expect(res.score).toBe("LOW");
+    expect(res.estimatedMonths).toBeGreaterThan(6);
   });
 });

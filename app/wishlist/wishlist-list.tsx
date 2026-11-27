@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { formatVND, wishlistProgress, crossedMilestones, calculateWishlistPace } from "@/lib/finance";
+import {
+  formatVND,
+  wishlistProgress,
+  crossedMilestones,
+  calculateWishlistPace,
+  calculateAffordability,
+} from "@/lib/finance";
 import { EditWishlistDialog, type WishlistItemType } from "./edit-wishlist-dialog";
 import { deleteWishlistItem } from "./actions";
 
@@ -110,6 +116,12 @@ export function WishlistList({ items, balance }: WishlistListProps) {
             balance,
             item.targetDate ? new Date(item.targetDate) : null,
           );
+          const afford = calculateAffordability(
+            item.price,
+            balance,
+            Math.max(1000000, Math.round(balance * 0.15)),
+            item.targetDate ? new Date(item.targetDate) : null,
+          );
 
           return (
             <div
@@ -171,6 +183,19 @@ export function WishlistList({ items, balance }: WishlistListProps) {
                     style={{ width: `${percent}%` }}
                   ></div>
                 </div>
+              </div>
+
+              {/* Đánh giá khả năng mua theo thuật toán */}
+              <div className="p-2.5 rounded-[10px] bg-[#faf9f6] border border-[#edebe4] space-y-1">
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-zinc-500 font-medium">Khả năng mua:</span>
+                  <span className={`px-2 py-0.5 text-[10px] font-semibold rounded-md border ${afford.badgeClass}`}>
+                    {afford.label}
+                  </span>
+                </div>
+                <p className="text-[11px] text-zinc-600 leading-relaxed">
+                  {afford.recommendation}
+                </p>
               </div>
 
               {/* Thông tin hạn chót và tốc độ tích lũy */}

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Navbar } from "@/components/navbar";
+import { AppLayoutWrapper } from "@/components/app-layout-wrapper";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -26,15 +26,8 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-screen flex flex-col bg-[#f8f7f4] text-[#1a1e1b] antialiased">
-        <Navbar />
-        <div className="flex-1">{children}</div>
-        <footer className="border-t border-[#e6e4dc] bg-white/70 py-6 mt-12 text-center text-xs text-zinc-500">
-          <div className="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <p className="font-medium text-zinc-600">Finance Planner © 2026 – Đồ án cá nhân môn PHY10615</p>
-            <p className="text-zinc-400">Next.js 16.4 · Prisma ORM 7 · PostgreSQL Neon</p>
-          </div>
-        </footer>
+      <body>
+        <AppLayoutWrapper>{children}</AppLayoutWrapper>
       </body>
     </html>
   );

@@ -11,6 +11,7 @@ import {
 } from "@/lib/finance";
 import { requireUser } from "@/lib/dal";
 import Link from "next/link";
+import { BudgetRuleDialog } from "./budget-rule-dialog";
 
 export const dynamic = "force-dynamic";
 
@@ -75,6 +76,7 @@ export default async function DashboardPage() {
     wishlistItems,
     allTxDates,
     categoryBudgets,
+    userBudgetRules,
   ] = await Promise.all([
     prisma.transaction.aggregate({
       _sum: { amount: true },
@@ -126,6 +128,10 @@ export default async function DashboardPage() {
     prisma.categoryBudget.findMany({
       where: { userId: user.id, month: currentMonthKey },
     }),
+    prisma.user.findUnique({
+      where: { id: user.id },
+      select: { ruleNeedsPct: true, ruleWantsPct: true, ruleSavingsPct: true },
+    }),
   ]);
 
   const allIncome = totalThu._sum.amount ?? 0;
@@ -150,12 +156,20 @@ export default async function DashboardPage() {
     now,
   );
 
-  // Phân tích quy tắc 50/30/20
+  // Phân tích quy tắc ngân sách (mặc định 50/30/20 hoặc tỷ lệ tùy chỉnh)
+  const customNeeds = userBudgetRules?.ruleNeedsPct ?? 50;
+  const customWants = userBudgetRules?.ruleWantsPct ?? 30;
+  const customSavings = userBudgetRules?.ruleSavingsPct ?? 20;
+
   const expensesFor503020 = theo.map((item) => ({
     category: item.category,
     amount: item._sum.amount ?? 0,
   }));
-  const rule503020 = calculate503020Rule(expensesFor503020, currentMonthIncome);
+  const rule503020 = calculate503020Rule(expensesFor503020, currentMonthIncome, {
+    needs: customNeeds,
+    wants: customWants,
+    savings: customSavings,
+  });
 
   // Map ngân sách danh mục
   const budgetMap = new Map<string, number>();
@@ -235,8 +249,8 @@ export default async function DashboardPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <span className="text-xs font-semibold text-[#183d2e] flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#183d2e]"></span>
             <span>{greeting}, {userFirstName}</span>
-            <span>👋</span>
           </span>
           <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 tracking-tight font-display mt-0.5">
             Tổng quan tài chính
@@ -285,8 +299,10 @@ export default async function DashboardPage() {
                 Số dư khả dụng
               </span>
               {streak > 0 && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-amber-200 text-[11px] font-medium">
-                  <span>🔥</span>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 border border-white/15 text-amber-200 text-[11px] font-medium">
+                  <svg className="w-3 h-3 text-amber-300" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.316.492-.474.965-.58 1.396-.106.435-.147.78-.172 1.053-.024.272-.033.447-.035.534l-.001.037c-.12.016-.25.043-.39.083-.404.116-.867.318-1.341.644-1.01.696-1.92 1.76-2.227 3.167-.324 1.487-.042 3.028.784 4.195.83 1.173 2.167 1.843 3.65 1.843 1.482 0 2.82-.67 3.65-1.843.826-1.167 1.108-2.708.784-4.195-.306-1.407-1.217-2.471-2.227-3.167-.474-.326-.937-.528-1.341-.644-.14-.04-.27-.067-.39-.083v-.037c-.002-.087-.011-.262-.035-.534-.025-.273-.066-.618-.172-1.053-.106-.431-.264-.904-.58-1.396-.208-.322-.477-.65-.822-.88z" clipRule="evenodd" />
+                  </svg>
                   <span>Chuỗi {streak} ngày</span>
                 </span>
               )}
@@ -441,25 +457,34 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* Phân tích Quy tắc 50/30/20 */}
+        {/* Phân tích Quy tắc 50/30/20 (Có thể tùy chỉnh) */}
         <div className="bg-white rounded-2xl border border-[#e6e4dc] p-5 sm:p-6 space-y-4 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold text-zinc-900 font-display">Quy tắc 50/30/20</h2>
-            <span className="text-[11px] text-zinc-400">Tỷ lệ chi tiêu</span>
+            <div>
+              <h2 className="text-sm font-bold text-zinc-900 font-display">
+                Ngân sách {customNeeds}/{customWants}/{customSavings}
+              </h2>
+              <span className="text-[11px] text-zinc-400">Tỷ lệ chi tiêu & Tích lũy</span>
+            </div>
+            <BudgetRuleDialog
+              currentNeeds={customNeeds}
+              currentWants={customWants}
+              currentSavings={customSavings}
+            />
           </div>
 
           <div className="space-y-4 pt-1 text-xs">
-            {/* Thiết yếu (50%) */}
+            {/* Thiết yếu */}
             <div>
               <div className="flex justify-between items-center text-[11px] mb-1.5">
                 <span className="text-zinc-700 font-medium flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-[#1f4e3b] inline-block"></span>
-                  Thiết yếu (Ăn uống, Nhà ở, Đi lại)
+                  Thiết yếu ({customNeeds}%)
                 </span>
                 <span className="tabular-nums font-semibold text-zinc-900 font-sans">
                   <Money amount={rule503020.needs.amount} />
                   {currentMonthIncome > 0 && (
-                    <span className="text-zinc-400 font-normal"> / <Money amount={currentMonthIncome * 0.5} /></span>
+                    <span className="text-zinc-400 font-normal"> / <Money amount={currentMonthIncome * (customNeeds / 100)} /></span>
                   )}
                 </span>
               </div>
@@ -468,26 +493,29 @@ export default async function DashboardPage() {
                   className="h-full rounded-full transition-all duration-300 bg-[#1f4e3b]"
                   style={{ width: `${Math.min(100, rule503020.needs.percent)}%` }}
                 ></div>
-                {/* Vạch mốc 50% rõ nét */}
-                <div className="absolute top-0 bottom-0 left-1/2 w-1 bg-white/90 shadow-2xs rounded-full"></div>
+                {/* Vạch mốc rõ nét */}
+                <div
+                  className="absolute top-0 bottom-0 w-1 bg-white/90 shadow-2xs rounded-full"
+                  style={{ left: `${customNeeds}%` }}
+                ></div>
               </div>
               <div className="flex justify-between items-center text-[10px] text-zinc-400 mt-1">
                 <span>Hiện tại: {rule503020.needs.percent}%</span>
-                <span>Mục tiêu: 50%</span>
+                <span>Mục tiêu: {customNeeds}%</span>
               </div>
             </div>
 
-            {/* Mong muốn (30%) */}
+            {/* Mong muốn */}
             <div>
               <div className="flex justify-between items-center text-[11px] mb-1.5">
                 <span className="text-zinc-700 font-medium flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-[#cf6b34] inline-block"></span>
-                  Mong muốn (Mua sắm, Giải trí)
+                  Mong muốn ({customWants}%)
                 </span>
                 <span className="tabular-nums font-semibold text-zinc-900 font-sans">
                   <Money amount={rule503020.wants.amount} />
                   {currentMonthIncome > 0 && (
-                    <span className="text-zinc-400 font-normal"> / <Money amount={currentMonthIncome * 0.3} /></span>
+                    <span className="text-zinc-400 font-normal"> / <Money amount={currentMonthIncome * (customWants / 100)} /></span>
                   )}
                 </span>
               </div>
@@ -496,26 +524,29 @@ export default async function DashboardPage() {
                   className="h-full rounded-full transition-all duration-300 bg-[#cf6b34]"
                   style={{ width: `${Math.min(100, rule503020.wants.percent)}%` }}
                 ></div>
-                {/* Vạch mốc 30% rõ nét */}
-                <div className="absolute top-0 bottom-0 left-[30%] w-1 bg-white/90 shadow-2xs rounded-full"></div>
+                {/* Vạch mốc rõ nét */}
+                <div
+                  className="absolute top-0 bottom-0 w-1 bg-white/90 shadow-2xs rounded-full"
+                  style={{ left: `${customWants}%` }}
+                ></div>
               </div>
               <div className="flex justify-between items-center text-[10px] text-zinc-400 mt-1">
                 <span>Hiện tại: {rule503020.wants.percent}%</span>
-                <span>Mục tiêu: 30%</span>
+                <span>Mục tiêu: {customWants}%</span>
               </div>
             </div>
 
-            {/* Tích lũy (20%) */}
+            {/* Tích lũy */}
             <div>
               <div className="flex justify-between items-center text-[11px] mb-1.5">
                 <span className="text-zinc-700 font-medium flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-[#2b6cb0] inline-block"></span>
-                  Tích lũy & Đầu tư
+                  Tích lũy & Đầu tư ({customSavings}%)
                 </span>
                 <span className="tabular-nums font-semibold text-zinc-900 font-sans">
                   <Money amount={rule503020.savings.amount} />
                   {currentMonthIncome > 0 && (
-                    <span className="text-zinc-400 font-normal"> / <Money amount={currentMonthIncome * 0.2} /></span>
+                    <span className="text-zinc-400 font-normal"> / <Money amount={currentMonthIncome * (customSavings / 100)} /></span>
                   )}
                 </span>
               </div>
@@ -524,12 +555,15 @@ export default async function DashboardPage() {
                   className="h-full rounded-full bg-[#2b6cb0] transition-all duration-300"
                   style={{ width: `${Math.min(100, rule503020.savings.percent)}%` }}
                 ></div>
-                {/* Vạch mốc 20% rõ nét */}
-                <div className="absolute top-0 bottom-0 left-[20%] w-1 bg-white/90 shadow-2xs rounded-full"></div>
+                {/* Vạch mốc rõ nét */}
+                <div
+                  className="absolute top-0 bottom-0 w-1 bg-white/90 shadow-2xs rounded-full"
+                  style={{ left: `${customSavings}%` }}
+                ></div>
               </div>
               <div className="flex justify-between items-center text-[10px] text-zinc-400 mt-1">
                 <span>Hiện tại: {rule503020.savings.percent}%</span>
-                <span>Mục tiêu: 20%</span>
+                <span>Mục tiêu: {customSavings}%</span>
               </div>
             </div>
           </div>

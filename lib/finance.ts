@@ -80,10 +80,15 @@ export interface Rule503020Result {
 export function calculate503020Rule(
   expenses: { category: string; amount: number }[],
   totalIncome: number,
+  customTargets?: { needs?: number; wants?: number; savings?: number },
 ): Rule503020Result {
   let needsAmount = 0;
   let wantsAmount = 0;
   let totalExpense = 0;
+
+  const targetNeeds = customTargets?.needs ?? 50;
+  const targetWants = customTargets?.wants ?? 30;
+  const targetSavings = customTargets?.savings ?? 20;
 
   const NEEDS_CATEGORIES = new Set(["FOOD", "TRANSPORT", "BILLS"]);
   const SAVINGS_CATEGORIES = new Set(["INVESTMENT"]);
@@ -115,9 +120,9 @@ export function calculate503020Rule(
   const savingsPercent = base > 0 ? Math.round((totalSavings / base) * 100) : 0;
 
   return {
-    needs: { amount: needsAmount, percent: needsPercent, targetPercent: 50 },
-    wants: { amount: wantsAmount, percent: wantsPercent, targetPercent: 30 },
-    savings: { amount: totalSavings, percent: savingsPercent, targetPercent: 20 },
+    needs: { amount: needsAmount, percent: needsPercent, targetPercent: targetNeeds },
+    wants: { amount: wantsAmount, percent: wantsPercent, targetPercent: targetWants },
+    savings: { amount: totalSavings, percent: savingsPercent, targetPercent: targetSavings },
     totalExpense,
     totalIncome,
   };
@@ -274,4 +279,106 @@ export function sanitizeCsvField(value: unknown): string {
   const isDangerousStart = /^[=+\-@\t\r]/.test(str);
   const sanitized = isDangerousStart ? `'${str}` : str;
   return `"${sanitized.replace(/"/g, '""')}"`;
+}
+
+// 7. Thuật toán đánh giá khả năng mua (Purchasing Power & Affordability Algorithm)
+export interface AffordabilityResult {
+  score: "READY" | "HIGH" | "MODERATE" | "LOW" | "OVERDUE";
+  label: string;
+  badgeClass: string;
+  recommendation: string;
+  estimatedMonths: number;
+  isAffordableNow: boolean;
+}
+
+export function calculateAffordability(
+  price: number,
+  balance: number,
+  monthlySavings: number,
+  targetDate: Date | null,
+  now = new Date(),
+): AffordabilityResult {
+  if (price <= 0) {
+    return {
+      score: "READY",
+      label: "Sẵn sàng",
+      badgeClass: "bg-emerald-50 text-emerald-800 border-emerald-200",
+      recommendation: "Món đồ không tốn chi phí, có thể mua ngay.",
+      estimatedMonths: 0,
+      isAffordableNow: true,
+    };
+  }
+
+  if (balance >= price) {
+    return {
+      score: "READY",
+      label: "Đủ khả năng mua",
+      badgeClass: "bg-emerald-50 text-emerald-800 border-emerald-200",
+      recommendation: "Số dư hiện tại đã đủ chi trả toàn bộ món đồ.",
+      estimatedMonths: 0,
+      isAffordableNow: true,
+    };
+  }
+
+  const deficit = price - Math.max(0, balance);
+  const safeMonthlySavings = monthlySavings > 0 ? monthlySavings : 0;
+  const estimatedMonths = safeMonthlySavings > 0 ? Math.ceil(deficit / safeMonthlySavings) : 999;
+
+  if (targetDate) {
+    const deadline = new Date(targetDate);
+    const diffDays = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays <= 0) {
+      return {
+        score: "OVERDUE",
+        label: "Đã quá hạn",
+        badgeClass: "bg-rose-50 text-rose-800 border-rose-200",
+        recommendation: "Mục tiêu đã quá hạn nhưng chưa tích lũy đủ số dư.",
+        estimatedMonths,
+        isAffordableNow: false,
+      };
+    }
+
+    const availableMonths = diffDays / 30;
+    if (estimatedMonths <= availableMonths) {
+      return {
+        score: "HIGH",
+        label: "Khả thi cao",
+        badgeClass: "bg-teal-50 text-teal-800 border-teal-200",
+        recommendation: "Kịp mục tiêu trước hạn chót theo nhịp tiết kiệm hiện tại.",
+        estimatedMonths,
+        isAffordableNow: false,
+      };
+    }
+  }
+
+  if (estimatedMonths <= 3) {
+    return {
+      score: "HIGH",
+      label: "Khả thi cao",
+      badgeClass: "bg-teal-50 text-teal-800 border-teal-200",
+      recommendation: `Dự kiến đạt mục tiêu trong khoảng ${estimatedMonths} tháng.`,
+      estimatedMonths,
+      isAffordableNow: false,
+    };
+  }
+
+  if (estimatedMonths <= 6) {
+    return {
+      score: "MODERATE",
+      label: "Khả thi trung bình",
+      badgeClass: "bg-amber-50 text-amber-800 border-amber-200",
+      recommendation: `Cần khoảng ${estimatedMonths} tháng tiết kiệm đều đặn.`,
+      estimatedMonths,
+      isAffordableNow: false,
+    };
+  }
+
+  return {
+    score: "LOW",
+    label: "Cần tích lũy thêm",
+    badgeClass: "bg-zinc-100 text-zinc-700 border-zinc-200",
+    recommendation: "Nên tăng tỷ lệ tiết kiệm hoặc giãn hạn chót để giảm áp lực tài chính.",
+    estimatedMonths,
+    isAffordableNow: false,
+  };
 }

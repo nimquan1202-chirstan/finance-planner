@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
+import { Logo } from "@/components/logo";
 
 interface LoginFormProps {
   githubEnabled: boolean;
@@ -110,14 +111,7 @@ export function LoginForm({ githubEnabled }: LoginFormProps) {
         <div className="md:col-span-7 p-6 sm:p-10 flex flex-col justify-between space-y-6">
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <Link href="/" className="inline-flex items-center gap-2.5 group">
-                <span className="w-7 h-7 rounded-lg bg-[#183d2e] text-emerald-100 flex items-center justify-center font-bold text-xs tracking-wider shadow-2xs group-hover:bg-[#204e3b] transition">
-                  FP
-                </span>
-                <span className="text-sm font-semibold text-zinc-900 tracking-tight">
-                  Finance Planner
-                </span>
-              </Link>
+              <Logo size="md" href="/" />
 
               <button
                 type="button"
@@ -265,47 +259,40 @@ export function LoginForm({ githubEnabled }: LoginFormProps) {
           )}
         </div>
 
-        {/* Cột phải: Bố cục đặc trưng sản phẩm với Pine Green */}
-        <div className="hidden md:flex md:col-span-5 bg-gradient-to-br from-[#16382a] via-[#1a4030] to-[#122e22] text-white p-8 flex-col justify-between relative overflow-hidden">
-          <div className="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-emerald-400/10 blur-2xl pointer-events-none"></div>
-
-          <div className="space-y-4 relative z-10">
-            <span className="text-[11px] font-semibold tracking-wider text-emerald-200/80 uppercase">
-              Quản lý tài chính cá nhân
+        {/* Cột phải: Thông tin tinh giản và tài khoản demo */}
+        <div className="hidden md:flex md:col-span-5 bg-[#183d2e] text-white p-8 flex-col justify-between">
+          <div className="space-y-4">
+            <span className="text-[11px] font-semibold tracking-wider text-emerald-300 uppercase">
+              Hệ thống tài chính cá nhân
             </span>
             <h2 className="text-xl font-bold text-white font-display leading-snug">
-              Rõ ràng thu chi, <br />
-              tiết kiệm có mục tiêu.
+              Kiểm soát dòng tiền & Mục tiêu tiết kiệm
             </h2>
-            <p className="text-xs text-emerald-100/70 leading-relaxed">
-              Theo dõi biến động dòng tiền, nắm bắt tỷ trọng chi phí và kiểm soát ngân sách mỗi ngày.
+            <p className="text-xs text-emerald-100/80 leading-relaxed">
+              Ứng dụng quản lý tài chính xây dựng trên Next.js 16 App Router, Prisma ORM 7 và Better Auth.
             </p>
+
+            <ul className="space-y-2.5 pt-2 text-xs text-emerald-100/90">
+              <li className="flex items-start gap-2">
+                <span className="text-emerald-400 font-bold">✓</span>
+                <span>Ghi chép thu chi, phân loại và xuất CSV an toàn</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-emerald-400 font-bold">✓</span>
+                <span>Ngân sách theo tỷ lệ tùy chỉnh (50/30/20, 60/20/20...)</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-emerald-400 font-bold">✓</span>
+                <span>Thuật toán đánh giá khả năng mua theo hạn chót thực tế</span>
+              </li>
+            </ul>
           </div>
 
-          {/* Minh họa trực quan của ứng dụng */}
-          <div className="p-4 bg-white/10 backdrop-blur-md border border-white/15 rounded-xl space-y-3 shadow-xs relative z-10">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-emerald-200/80 font-medium">Số dư khả dụng</span>
-              <span className="tabular-nums font-bold text-white font-sans">12.500.000 đ</span>
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex items-center justify-between text-[11px]">
-                <span className="text-emerald-100/90">Mục tiêu: Laptop mới</span>
-                <span className="tabular-nums text-emerald-300 font-medium font-sans">75%</span>
-              </div>
-              <div className="w-full h-1.5 bg-white/20 rounded-full overflow-hidden">
-                <div className="h-full bg-emerald-400 rounded-full w-3/4"></div>
-              </div>
-            </div>
-
-            <p className="text-[11px] text-emerald-200 font-medium pt-1 border-t border-white/10">
-              Duy trì được ~4,2 tháng chi tiêu an toàn
+          <div className="p-3.5 bg-[#122e22] border border-[#265e47] rounded-[10px] space-y-1 text-xs">
+            <p className="font-semibold text-emerald-200">Tài khoản nghiệm thu Demo:</p>
+            <p className="font-sans text-[11px] text-emerald-100/90 tabular-nums">
+              demo@phy10615.vn / Demo@123456
             </p>
-          </div>
-
-          <div className="text-[11px] text-emerald-200/50 relative z-10">
-            PHY10615 · HK1 2026–2027
           </div>
         </div>
       </div>
