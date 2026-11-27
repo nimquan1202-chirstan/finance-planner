@@ -24,12 +24,18 @@ export async function createWishlistItem(
     return { errors: flat.fieldErrors, values };
   }
 
+  const targetDateVal =
+    parsed.data.targetDate && parsed.data.targetDate.trim() !== ""
+      ? new Date(parsed.data.targetDate)
+      : null;
+
   await prisma.wishlistItem.create({
     data: {
       name: parsed.data.name,
       price: parsed.data.price,
       priority: parsed.data.priority,
       link: parsed.data.link || null,
+      targetDate: targetDateVal,
       userId: user.id,
     },
   });
@@ -44,41 +50,69 @@ export async function updateWishlistItem(
   formData: FormData,
 ): Promise<FormState> {
   const user = await requireUser();
-  const id = String(formData.get("id"));
+  const rawId = formData.get("id");
+  const id = typeof rawId === "string" ? rawId.trim() : "";
   const values = readValues(formData);
   const parsed = updateWishlistSchema.safeParse({ ...values, id });
 
   if (!parsed.success) {
     const flat = z.flattenError(parsed.error);
-    return { errors: flat.fieldErrors, values };
+    return { ok: false, errors: flat.fieldErrors, values };
   }
 
+  const targetDateVal =
+    parsed.data.targetDate && parsed.data.targetDate.trim() !== ""
+      ? new Date(parsed.data.targetDate)
+      : null;
+
   // Chống IDOR: updateMany theo id và userId
-  await prisma.wishlistItem.updateMany({
+  const result = await prisma.wishlistItem.updateMany({
     where: { id: parsed.data.id, userId: user.id },
     data: {
       name: parsed.data.name,
       price: parsed.data.price,
       priority: parsed.data.priority,
       link: parsed.data.link || null,
+      targetDate: targetDateVal,
     },
   });
+
+  if (result.count === 0) {
+    return {
+      ok: false,
+      error: "Không tìm thấy mục tiêu hoặc bạn không có quyền sửa",
+      values,
+    };
+  }
 
   revalidatePath("/wishlist");
   revalidatePath("/dashboard");
   return { ok: true, message: "Đã cập nhật mục tiêu" };
 }
 
-export async function deleteWishlistItem(formData: FormData) {
+export async function deleteWishlistItem(
+  formData: FormData,
+): Promise<{ ok: boolean; error?: string }> {
   const user = await requireUser();
-  const id = String(formData.get("id"));
-  if (!id) return;
+  const rawId = formData.get("id");
+  const id = typeof rawId === "string" ? rawId.trim() : "";
+  if (!id) {
+    return { ok: false, error: "Thiếu ID mục tiêu" };
+  }
 
   // Chống IDOR: deleteMany với where: { id, userId: user.id }
-  await prisma.wishlistItem.deleteMany({
+  const result = await prisma.wishlistItem.deleteMany({
     where: { id, userId: user.id },
   });
 
+  if (result.count === 0) {
+    return {
+      ok: false,
+      error: "Không tìm thấy mục tiêu hoặc bạn không có quyền xoá",
+    };
+  }
+
   revalidatePath("/wishlist");
   revalidatePath("/dashboard");
+  return { ok: true };
 }

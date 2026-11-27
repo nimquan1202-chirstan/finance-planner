@@ -41,10 +41,10 @@ export function TransactionFilters(f: Filters) {
     f.range !== "this-month" || !!f.type || !!f.category || !!f.q || f.sort !== "desc";
 
   const selectStyle =
-    "h-9 pl-3 pr-7 py-1.5 border border-zinc-200 rounded-lg text-xs bg-white text-zinc-800 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,<svg%20xmlns=\"http://www.w3.org/2000/svg\"%20width=\"16\"%20height=\"16\"%20fill=\"none\"%20stroke=\"%2371717a\"%20stroke-width=\"1.5\"%20viewBox=\"0 0 24 24\"><path%20stroke-linecap=\"round\"%20stroke-linejoin=\"round\"%20d=\"M6%209l6%206%206-6\"/></svg>')] bg-[length:13px] bg-[right_8px_center] bg-no-repeat focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition cursor-pointer";
+    "h-9 pl-3 pr-7 py-1.5 border border-[#e2dfd5] rounded-xl text-xs bg-white text-zinc-800 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,<svg%20xmlns=\"http://www.w3.org/2000/svg\"%20width=\"16\"%20height=\"16\"%20fill=\"none\"%20stroke=\"%2371717a\"%20stroke-width=\"1.5\"%20viewBox=\"0 0 24 24\"><path%20stroke-linecap=\"round\"%20stroke-linejoin=\"round\"%20d=\"M6%209l6%206%206-6\"/></svg>')] bg-[length:13px] bg-[right_8px_center] bg-no-repeat focus:outline-none focus:border-[#183d2e] focus:ring-1 focus:ring-[#183d2e] transition cursor-pointer";
 
   return (
-    <div className="bg-white border border-zinc-200/80 rounded-lg p-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+    <div className="bg-white border border-[#e6e4dc] rounded-2xl p-3 sm:p-3.5 flex flex-wrap items-center justify-between gap-3 text-xs shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
       {/* Tìm kiếm và các bộ lọc */}
       <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[280px]">
         {/* Ô tìm kiếm rộng hơn */}
@@ -61,7 +61,7 @@ export function TransactionFilters(f: Filters) {
             onBlur={(e) => {
               pick("q", e.target.value.trim());
             }}
-            className="w-full h-9 pl-8 pr-3 py-1.5 border border-zinc-200 rounded-lg text-xs bg-zinc-50/70 hover:bg-white focus:bg-white text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition"
+            className="w-full h-9 pl-8 pr-3 py-1.5 border border-[#e2dfd5] rounded-xl text-xs bg-[#faf9f6] hover:bg-white focus:bg-white text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-[#183d2e] focus:ring-1 focus:ring-[#183d2e] transition"
           />
           <span className="absolute left-2.5 top-2.5 text-zinc-400 pointer-events-none">
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">

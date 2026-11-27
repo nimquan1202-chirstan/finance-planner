@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { formatVND, wishlistProgress, crossedMilestones } from "@/lib/finance";
+import { formatVND, wishlistProgress, crossedMilestones, calculateWishlistPace } from "@/lib/finance";
 import { EditWishlistDialog, type WishlistItemType } from "./edit-wishlist-dialog";
 import { deleteWishlistItem } from "./actions";
 
@@ -57,18 +57,27 @@ export function WishlistList({ items, balance }: WishlistListProps) {
     if (confirm("Bạn có chắc chắn muốn xoá mục tiêu này?")) {
       const formData = new FormData();
       formData.append("id", id);
-      await deleteWishlistItem(formData);
-      showToast("Đã xoá mục tiêu");
+      const res = await deleteWishlistItem(formData);
+      showToast(
+        res.ok ? "Đã xoá mục tiêu" : (res.error ?? "Không thể xoá mục tiêu"),
+      );
     }
   };
 
   if (items.length === 0) {
     return (
-      <div className="bg-white border border-zinc-200/80 rounded-lg p-10 text-center text-xs text-zinc-500 space-y-2">
-        <p className="font-semibold text-zinc-800 text-sm">Chưa có món nào. Thêm món đầu tiên đi.</p>
-        <p className="text-zinc-400">
-          Nhập món đồ bạn muốn mua vào ô phía trên để theo dõi tiến độ tích lũy.
-        </p>
+      <div className="bg-white border border-[#e6e4dc] rounded-2xl p-10 text-center space-y-3 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+        <div className="w-10 h-10 rounded-xl bg-[#faf6ee] text-[#cf6b34] flex items-center justify-center mx-auto">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+        </div>
+        <div>
+          <p className="font-semibold text-zinc-800 text-sm">Chưa có món nào trong danh sách</p>
+          <p className="text-zinc-500 text-xs mt-0.5">
+            Nhập món đồ bạn dự định mua vào ô phía trên để bắt đầu theo dõi tiến độ tích lũy nhé.
+          </p>
+        </div>
       </div>
     );
   }
@@ -77,7 +86,7 @@ export function WishlistList({ items, balance }: WishlistListProps) {
     <div className="space-y-4">
       {/* Toast thông báo */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-zinc-900 text-white px-4 py-2.5 rounded-lg text-xs font-medium shadow-xl border border-zinc-800 animate-in slide-in-from-bottom-2">
+        <div className="fixed bottom-6 right-6 z-50 bg-[#183d2e] text-white px-4 py-2.5 rounded-xl text-xs font-medium shadow-xl border border-emerald-900 animate-in slide-in-from-bottom-2">
           {toastMessage}
         </div>
       )}
@@ -91,17 +100,22 @@ export function WishlistList({ items, balance }: WishlistListProps) {
       )}
 
       {/* Grid thẻ mục tiêu */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {items.map((item) => {
           const percent = wishlistProgress(balance, item.price);
           const pri = PRIORITY_CONFIG[item.priority] || PRIORITY_CONFIG.MEDIUM;
           const isComplete = percent >= 100;
+          const pace = calculateWishlistPace(
+            item.price,
+            balance,
+            item.targetDate ? new Date(item.targetDate) : null,
+          );
 
           return (
             <div
               key={item.id}
               onClick={() => setEditingItem(item)}
-              className="bg-white border border-zinc-200/80 rounded-lg p-4 sm:p-5 hover:border-zinc-300 transition cursor-pointer relative group flex flex-col justify-between space-y-4"
+              className="bg-white border border-[#e6e4dc] rounded-2xl p-4 sm:p-5 hover:border-[#cfcbc0] transition cursor-pointer relative group flex flex-col justify-between space-y-4 shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
               title="Bấm vào để chỉnh sửa"
             >
               <div className="space-y-2">
@@ -124,21 +138,21 @@ export function WishlistList({ items, balance }: WishlistListProps) {
                   </div>
 
                   <span
-                    className={`px-2 py-0.5 text-[10px] font-medium rounded-md border shrink-0 ${pri.badge}`}
+                    className={`px-2.5 py-0.5 text-[10px] font-medium rounded-full border shrink-0 ${pri.badge}`}
                   >
                     {pri.label}
                   </span>
                 </div>
 
-                <div className="flex items-baseline justify-between text-xs font-mono tabular-nums">
+                <div className="flex items-baseline justify-between text-xs tabular-nums font-sans">
                   <span className="text-zinc-500 font-sans text-[11px]">Mục tiêu:</span>
-                  <span className="font-semibold text-zinc-900">{formatVND(item.price)}</span>
+                  <span className="font-semibold text-zinc-900 font-sans">{formatVND(item.price)}</span>
                 </div>
               </div>
 
               {/* Thanh tiến độ */}
               <div className="space-y-1.5">
-                <div className="flex items-center justify-between text-xs font-mono tabular-nums">
+                <div className="flex items-center justify-between text-xs tabular-nums font-sans">
                   <span className="text-[11px] text-zinc-400 font-sans">Tiến độ tích lũy:</span>
                   <span
                     className={`font-bold ${
@@ -149,25 +163,45 @@ export function WishlistList({ items, balance }: WishlistListProps) {
                   </span>
                 </div>
 
-                <div className="w-full h-2 bg-zinc-100 rounded-full overflow-hidden">
+                <div className="w-full h-2.5 bg-zinc-100 rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all duration-300 ${
-                      isComplete ? "bg-emerald-600" : "bg-zinc-800"
+                      isComplete ? "bg-emerald-600" : "bg-[#183d2e]"
                     }`}
                     style={{ width: `${percent}%` }}
                   ></div>
                 </div>
               </div>
 
+              {/* Thông tin hạn chót và tốc độ tích lũy */}
+              {pace.hasTargetDate && (
+                <div className="flex items-center justify-between text-[11px] pt-1 text-zinc-500 border-t border-[#edebe4]">
+                  <span>
+                    Hạn: {new Date(item.targetDate!).toLocaleDateString("vi-VN")}
+                  </span>
+                  {pace.isOverdue ? (
+                    <span className="text-rose-600 font-medium">
+                      Đã quá hạn (thiếu {formatVND(pace.neededPerDay)})
+                    </span>
+                  ) : isComplete ? (
+                    <span className="text-emerald-600 font-medium">Đã đạt trước hạn</span>
+                  ) : (
+                    <span className="text-zinc-600">
+                      Còn {pace.daysRemaining} ngày · cần ~{formatVND(pace.neededPerDay)}/ngày
+                    </span>
+                  )}
+                </div>
+              )}
+
               {/* Footer thẻ */}
-              <div className="flex items-center justify-between pt-2 border-t border-zinc-50 text-[11px]">
+              <div className="flex items-center justify-between pt-2 border-t border-[#edebe4] text-[11px]">
                 <span className="text-zinc-400 group-hover:text-zinc-600">
                   Bấm để sửa
                 </span>
                 <button
                   type="button"
                   onClick={(e) => handleDelete(e, item.id)}
-                  className="opacity-0 group-hover:opacity-100 px-2 py-0.5 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 rounded transition"
+                  className="opacity-0 group-hover:opacity-100 px-2 py-0.5 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
                 >
                   Xoá
                 </button>

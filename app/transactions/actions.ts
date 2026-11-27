@@ -42,17 +42,18 @@ export async function updateTransaction(
   formData: FormData,
 ): Promise<FormState> {
   const user = await requireUser();
-  const id = formData.get("id") as string;
+  const rawId = formData.get("id");
+  const id = typeof rawId === "string" ? rawId.trim() : "";
   const values = readValues(formData);
   const parsed = updateTransactionSchema.safeParse({ ...values, id });
 
   if (!parsed.success) {
     const flat = z.flattenError(parsed.error);
-    return { errors: flat.fieldErrors, values };
+    return { ok: false, errors: flat.fieldErrors, values };
   }
 
   // Chống IDOR: updateMany theo id và userId của người dùng hiện tại
-  await prisma.transaction.updateMany({
+  const result = await prisma.transaction.updateMany({
     where: { id: parsed.data.id, userId: user.id },
     data: {
       amount: parsed.data.amount,
@@ -63,21 +64,42 @@ export async function updateTransaction(
     },
   });
 
+  if (result.count === 0) {
+    return {
+      ok: false,
+      error: "Không tìm thấy giao dịch hoặc bạn không có quyền sửa",
+      values,
+    };
+  }
+
   revalidatePath("/transactions");
   revalidatePath("/dashboard");
   return { ok: true, message: "Đã cập nhật giao dịch" };
 }
 
-export async function deleteTransaction(formData: FormData) {
+export async function deleteTransaction(
+  formData: FormData,
+): Promise<{ ok: boolean; error?: string }> {
   const user = await requireUser();
-  const id = formData.get("id") as string;
-  if (!id) return;
+  const rawId = formData.get("id");
+  const id = typeof rawId === "string" ? rawId.trim() : "";
+  if (!id) {
+    return { ok: false, error: "Thiếu ID giao dịch" };
+  }
 
   // Chống IDOR: deleteMany với where: { id, userId: user.id }
-  await prisma.transaction.deleteMany({
+  const result = await prisma.transaction.deleteMany({
     where: { id, userId: user.id },
   });
 
+  if (result.count === 0) {
+    return {
+      ok: false,
+      error: "Không tìm thấy giao dịch hoặc bạn không có quyền xoá",
+    };
+  }
+
   revalidatePath("/transactions");
   revalidatePath("/dashboard");
+  return { ok: true };
 }

@@ -63,3 +63,215 @@ export function spendingByCategory(
   }
   return result;
 }
+
+// ==========================================
+// CÁC TÍNH NĂNG MỞ RỘNG (TỪ BÀI ÂN & PHÁT)
+// ==========================================
+
+// 1. Phân tích Quy tắc 50/30/20 (Thiết yếu / Mong muốn / Tích lũy)
+export interface Rule503020Result {
+  needs: { amount: number; percent: number; targetPercent: number };
+  wants: { amount: number; percent: number; targetPercent: number };
+  savings: { amount: number; percent: number; targetPercent: number };
+  totalExpense: number;
+  totalIncome: number;
+}
+
+export function calculate503020Rule(
+  expenses: { category: string; amount: number }[],
+  totalIncome: number,
+): Rule503020Result {
+  let needsAmount = 0;
+  let wantsAmount = 0;
+  let totalExpense = 0;
+
+  const NEEDS_CATEGORIES = new Set(["FOOD", "TRANSPORT", "BILLS"]);
+  const SAVINGS_CATEGORIES = new Set(["INVESTMENT"]);
+
+  for (const item of expenses) {
+    totalExpense += item.amount;
+    if (NEEDS_CATEGORIES.has(item.category)) {
+      needsAmount += item.amount;
+    } else if (SAVINGS_CATEGORIES.has(item.category)) {
+      // Đầu tư tích lũy
+    } else {
+      // SHOPPING, ENTERTAINMENT, OTHER
+      wantsAmount += item.amount;
+    }
+  }
+
+  // Tích lũy = Chênh lệch thu - chi (nếu dương) + các khoản đầu tư
+  const investmentAmount = expenses
+    .filter((e) => SAVINGS_CATEGORIES.has(e.category))
+    .reduce((sum, e) => sum + e.amount, 0);
+
+  const netSavings = Math.max(0, totalIncome - totalExpense);
+  const totalSavings = netSavings + investmentAmount;
+
+  // Tính tỷ lệ % so với tổng thu (hoặc so với tổng chi nếu chưa có thu)
+  const base = totalIncome > 0 ? totalIncome : totalExpense;
+  const needsPercent = base > 0 ? Math.round((needsAmount / base) * 100) : 0;
+  const wantsPercent = base > 0 ? Math.round((wantsAmount / base) * 100) : 0;
+  const savingsPercent = base > 0 ? Math.round((totalSavings / base) * 100) : 0;
+
+  return {
+    needs: { amount: needsAmount, percent: needsPercent, targetPercent: 50 },
+    wants: { amount: wantsAmount, percent: wantsPercent, targetPercent: 30 },
+    savings: { amount: totalSavings, percent: savingsPercent, targetPercent: 20 },
+    totalExpense,
+    totalIncome,
+  };
+}
+
+// 2. Tính chuỗi ngày ghi chép liên tiếp (Streak)
+export function calculateStreak(dates: Date[], now = new Date()): number {
+  if (!dates || dates.length === 0) return 0;
+
+  // Chuyển về định dạng chuỗi ngày YYYY-MM-DD theo giờ địa phương
+  const toDayString = (d: Date) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const todayStr = toDayString(now);
+  const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+  const yesterdayStr = toDayString(yesterday);
+
+  const uniqueDays = Array.from(new Set(dates.map(toDayString))).sort().reverse();
+  if (uniqueDays.length === 0) return 0;
+
+  // Nếu ngày gần nhất không phải hôm nay hoặc hôm qua thì chuỗi đã bị đứt
+  const mostRecent = uniqueDays[0];
+  if (mostRecent !== todayStr && mostRecent !== yesterdayStr) {
+    return 0;
+  }
+
+  let streak = 0;
+  let checkDate = mostRecent === todayStr ? now : yesterday;
+
+  for (let i = 0; i < uniqueDays.length; i++) {
+    const expectedStr = toDayString(checkDate);
+    if (uniqueDays[i] === expectedStr) {
+      streak++;
+      checkDate = new Date(checkDate.getFullYear(), checkDate.getMonth(), checkDate.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+
+  return streak;
+}
+
+// 3. Dự báo số dư cuối tháng
+export function calculateMonthEndForecast(
+  currentIncome: number,
+  currentExpense: number,
+  now = new Date(),
+): {
+  dailyAverageExpense: number;
+  projectedExpense: number;
+  projectedBalance: number;
+  status: "safe" | "warning" | "deficit";
+} {
+  const currentDay = Math.max(1, now.getDate());
+  const totalDaysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+
+  const dailyAverageExpense = Math.round(currentExpense / currentDay);
+  const projectedExpense = dailyAverageExpense * totalDaysInMonth;
+  const projectedBalance = currentIncome - projectedExpense;
+
+  let status: "safe" | "warning" | "deficit" = "safe";
+  if (projectedBalance < 0) {
+    status = "deficit";
+  } else if (projectedBalance < currentIncome * 0.1) {
+    status = "warning";
+  }
+
+  return {
+    dailyAverageExpense,
+    projectedExpense,
+    projectedBalance,
+    status,
+  };
+}
+
+// 4. Tính toán tiến độ & tốc độ tích lũy Wishlist theo Deadline
+export function calculateWishlistPace(
+  cost: number,
+  balance: number,
+  targetDate: Date | null,
+  now = new Date(),
+): {
+  daysRemaining: number;
+  neededPerDay: number;
+  isOverdue: boolean;
+  hasTargetDate: boolean;
+} {
+  if (!targetDate) {
+    return {
+      daysRemaining: 0,
+      neededPerDay: 0,
+      isOverdue: false,
+      hasTargetDate: false,
+    };
+  }
+
+  const remainingCost = Math.max(0, cost - Math.max(0, balance));
+  const diffTime = targetDate.getTime() - now.getTime();
+  const daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (daysRemaining <= 0) {
+    return {
+      daysRemaining: 0,
+      neededPerDay: remainingCost,
+      isOverdue: remainingCost > 0,
+      hasTargetDate: true,
+    };
+  }
+
+  const neededPerDay = Math.ceil(remainingCost / daysRemaining);
+
+  return {
+    daysRemaining,
+    neededPerDay,
+    isOverdue: false,
+    hasTargetDate: true,
+  };
+}
+
+// 5. Tính trạng thái ngân sách danh mục (80% & 100%)
+export function calculateBudgetStatus(
+  spent: number,
+  limitAmount: number,
+): {
+  percent: number;
+  status: "normal" | "warning" | "exceeded";
+} {
+  if (limitAmount <= 0) {
+    return { percent: 0, status: "normal" };
+  }
+
+  const percent = Math.round((spent / limitAmount) * 100);
+
+  if (percent >= 100) {
+    return { percent, status: "exceeded" };
+  }
+  if (percent >= 80) {
+    return { percent, status: "warning" };
+  }
+  return { percent, status: "normal" };
+}
+
+// 6. Chống CSV / Formula Injection (CSV Injection Protection)
+export function sanitizeCsvField(value: unknown): string {
+  if (value === null || value === undefined) {
+    return '""';
+  }
+  const str = String(value);
+  // Nếu chuỗi bắt đầu bằng =, +, -, @, \t, hoặc \r thì thêm dấu nháy đơn ' để ngăn spreadsheet thực thi formula
+  const isDangerousStart = /^[=+\-@\t\r]/.test(str);
+  const sanitized = isDangerousStart ? `'${str}` : str;
+  return `"${sanitized.replace(/"/g, '""')}"`;
+}

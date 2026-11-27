@@ -2,14 +2,20 @@
 
 :root {
   --font-sans: "Be Vietnam Pro", system-ui, -apple-system, sans-serif;
+  --font-display: "Fraunces", Georgia, serif;
 }
 
 body {
   font-family: var(--font-sans);
-  background-color: #fafaf9; /* Stone-50: be ấm nhẹ tự nhiên */
-  color: #18181b; /* Zinc-900: đen than */
+  background-color: #f8f7f4; /* Kem ấm trang nhã, dịu mắt */
+  color: #1a1e1b;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
 a {

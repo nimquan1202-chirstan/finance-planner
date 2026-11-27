@@ -22,17 +22,17 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,600&display=swap"
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-screen flex flex-col bg-[#fafaf9] text-zinc-900 antialiased">
+      <body className="min-h-screen flex flex-col bg-[#f8f7f4] text-[#1a1e1b] antialiased">
         <Navbar />
         <div className="flex-1">{children}</div>
-        <footer className="border-t border-zinc-200 bg-white py-6 mt-12 text-center text-xs text-zinc-500">
+        <footer className="border-t border-[#e6e4dc] bg-white/70 py-6 mt-12 text-center text-xs text-zinc-500">
           <div className="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <p>Finance Planner © 2026 – Đồ án cá nhân môn PHY10615</p>
-            <p>Next.js 16.4 · Prisma ORM 7 · PostgreSQL Neon</p>
+            <p className="font-medium text-zinc-600">Finance Planner © 2026 – Đồ án cá nhân môn PHY10615</p>
+            <p className="text-zinc-400">Next.js 16.4 · Prisma ORM 7 · PostgreSQL Neon</p>
           </div>
         </footer>
       </body>

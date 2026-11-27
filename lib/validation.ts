@@ -27,6 +27,7 @@ type Values = Partial<Record<Field, string>>;
 // Kết quả action trả về cho form sau mỗi lần gửi
 export type FormState = {
   ok?: boolean;
+  error?: string;
   message?: string;
   errors?: Partial<Record<string, string[]>>;
   values?: Record<string, string>;
@@ -64,6 +65,7 @@ export const wishlistSchema = z.object({
     .positive({ error: "Giá phải lớn hơn 0" }),
   priority: z.enum(Priority).default("MEDIUM"),
   link: z.string().trim().optional(),
+  targetDate: z.string().optional(),
 });
 
 export const updateWishlistSchema = wishlistSchema.extend({

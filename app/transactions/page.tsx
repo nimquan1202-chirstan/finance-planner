@@ -54,12 +54,12 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
   return (
     <main className="max-w-5xl mx-auto px-4 sm:px-6 py-7 space-y-6">
       {/* Header gọn gàng */}
-      <div className="border-b border-zinc-200/80 pb-4">
-        <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 tracking-tight">
+      <div className="pb-1">
+        <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 tracking-tight font-display">
           Sổ giao dịch
         </h1>
         <p className="text-xs text-zinc-500 mt-0.5">
-          Theo dõi chi tiết các khoản thu chi
+          Ghi nhận các khoản thu chi phát sinh hàng ngày
         </p>
       </div>
 

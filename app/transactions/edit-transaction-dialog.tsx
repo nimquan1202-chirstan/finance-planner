@@ -45,16 +45,16 @@ export function EditTransactionDialog({ transaction, onClose }: EditDialogProps)
   const dateValue = new Date(transaction.date).toISOString().split("T")[0];
 
   const selectStyle =
-    "w-full h-9 pl-3 pr-7 py-1.5 border border-zinc-200 rounded-lg text-xs bg-white text-zinc-800 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,<svg%20xmlns=\"http://www.w3.org/2000/svg\"%20width=\"16\"%20height=\"16\"%20fill=\"none\"%20stroke=\"%2371717a\"%20stroke-width=\"1.5\"%20viewBox=\"0 0 24 24\"><path%20stroke-linecap=\"round\"%20stroke-linejoin=\"round\"%20d=\"M6%209l6%206%206-6\"/></svg>')] bg-[length:13px] bg-[right_8px_center] bg-no-repeat focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition cursor-pointer";
+    "w-full h-9 pl-3 pr-7 py-1.5 border border-[#e2dfd5] rounded-xl text-xs bg-white text-zinc-800 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,<svg%20xmlns=\"http://www.w3.org/2000/svg\"%20width=\"16\"%20height=\"16\"%20fill=\"none\"%20stroke=\"%2371717a\"%20stroke-width=\"1.5\"%20viewBox=\"0 0 24 24\"><path%20stroke-linecap=\"round\"%20stroke-linejoin=\"round\"%20d=\"M6%209l6%206%206-6\"/></svg>')] bg-[length:13px] bg-[right_8px_center] bg-no-repeat focus:outline-none focus:border-[#183d2e] focus:ring-1 focus:ring-[#183d2e] transition cursor-pointer";
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/35 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white border border-zinc-200/80 rounded-lg max-w-md w-full p-5 space-y-4 shadow-lg animate-in fade-in duration-200">
-        <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
-          <h2 className="text-sm font-bold text-zinc-900">Sửa khoản thu chi</h2>
+    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-[#e6e4dc] rounded-2xl max-w-md w-full p-5 sm:p-6 space-y-4 shadow-xl animate-in fade-in duration-200">
+        <div className="flex items-center justify-between border-b border-[#edebe4] pb-3">
+          <h2 className="text-sm font-bold text-zinc-900 font-display">Sửa khoản thu chi</h2>
           <button
             onClick={onClose}
-            className="text-zinc-400 hover:text-zinc-700 text-sm p-1 rounded-md"
+            className="text-zinc-400 hover:text-zinc-700 text-sm p-1 rounded-lg"
             aria-label="Đóng"
           >
             ✕
@@ -64,6 +64,15 @@ export function EditTransactionDialog({ transaction, onClose }: EditDialogProps)
         {state.ok && (
           <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-md text-emerald-800 text-xs">
             ✓ {state.message}
+          </div>
+        )}
+
+        {state.error && (
+          <div
+            role="alert"
+            className="p-2.5 bg-rose-50 border border-rose-200 rounded-md text-rose-700 text-xs"
+          >
+            {state.error}
           </div>
         )}
 
@@ -140,18 +149,18 @@ export function EditTransactionDialog({ transaction, onClose }: EditDialogProps)
             )}
           </div>
 
-          <div className="pt-2 flex items-center justify-end gap-2 border-t border-zinc-100">
+          <div className="pt-2 flex items-center justify-end gap-2 border-t border-[#edebe4]">
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-1.5 h-8 rounded-lg border border-zinc-200 text-zinc-700 hover:bg-zinc-50 text-xs font-medium transition"
+              className="px-3.5 py-1.5 h-8 rounded-xl border border-[#e2dfd5] text-zinc-700 hover:bg-zinc-50 text-xs font-medium transition"
             >
               Hủy
             </button>
             <button
               type="submit"
               disabled={pending}
-              className="px-4 py-1.5 h-8 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-medium disabled:bg-zinc-400 transition"
+              className="px-4 py-1.5 h-8 rounded-xl bg-[#183d2e] hover:bg-[#204e3b] text-white text-xs font-medium disabled:bg-zinc-400 transition shadow-2xs"
             >
               {pending ? "Đang lưu..." : "Lưu thay đổi"}
             </button>

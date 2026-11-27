@@ -8,19 +8,19 @@ export function WishlistForm() {
   const { values: v = {}, errors: err = {} } = state;
 
   const selectStyle =
-    "w-full h-9 pl-3 pr-7 py-1.5 border border-zinc-200 rounded-lg text-xs bg-white text-zinc-800 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,<svg%20xmlns=\"http://www.w3.org/2000/svg\"%20width=\"16\"%20height=\"16\"%20fill=\"none\"%20stroke=\"%2371717a\"%20stroke-width=\"1.5\"%20viewBox=\"0 0 24 24\"><path%20stroke-linecap=\"round\"%20stroke-linejoin=\"round\"%20d=\"M6%209l6%206%206-6\"/></svg>')] bg-[length:13px] bg-[right_8px_center] bg-no-repeat focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition cursor-pointer";
+    "w-full h-9 pl-3 pr-7 py-1.5 border border-[#e2dfd5] rounded-xl text-xs bg-white text-zinc-800 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,<svg%20xmlns=\"http://www.w3.org/2000/svg\"%20width=\"16\"%20height=\"16\"%20fill=\"none\"%20stroke=\"%2371717a\"%20stroke-width=\"1.5\"%20viewBox=\"0 0 24 24\"><path%20stroke-linecap=\"round\"%20stroke-linejoin=\"round\"%20d=\"M6%209l6%206%206-6\"/></svg>')] bg-[length:13px] bg-[right_8px_center] bg-no-repeat focus:outline-none focus:border-[#183d2e] focus:ring-1 focus:ring-[#183d2e] transition cursor-pointer";
 
   return (
-    <div className="bg-white border border-zinc-200/80 rounded-lg p-4 sm:p-5 space-y-3">
-      <div className="flex items-center justify-between border-b border-zinc-100 pb-2.5">
-        <h2 className="text-sm font-bold text-zinc-900">Muốn mua gì?</h2>
+    <div className="bg-white border border-[#e6e4dc] rounded-2xl p-4 sm:p-5 space-y-3 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+      <div className="flex items-center justify-between border-b border-[#edebe4] pb-2.5">
+        <h2 className="text-sm font-bold text-zinc-900 font-display">Muốn mua gì?</h2>
         <span className="text-[11px] text-zinc-400">Tự động tính % tiến độ theo số dư</span>
       </div>
 
       {state.ok && (
         <div
           role="status"
-          className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-md text-emerald-800 text-xs flex items-center justify-between"
+          className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex items-center justify-between"
         >
           <span>✓ {state.message}</span>
         </div>
@@ -36,7 +36,7 @@ export function WishlistForm() {
               placeholder="Tên món đồ (VD: Giày chạy bộ, Laptop...)"
               defaultValue={v.name}
               required
-              className="w-full h-9 px-3 py-1.5 border border-zinc-200 rounded-lg text-xs bg-white text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition"
+              className="w-full h-9 px-3 py-1.5 border border-[#e2dfd5] rounded-xl text-xs bg-white text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-[#183d2e] focus:ring-1 focus:ring-[#183d2e] transition"
             />
             {err.name && <p className="text-[11px] text-rose-600 mt-0.5">{err.name[0]}</p>}
           </div>
@@ -51,7 +51,7 @@ export function WishlistForm() {
               placeholder="Giá tiền (đ)"
               defaultValue={v.price}
               required
-              className="w-full h-9 px-3 py-1.5 border border-zinc-200 rounded-lg text-xs bg-white text-zinc-900 placeholder:text-zinc-400 font-mono tabular-nums focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition"
+              className="w-full h-9 px-3 py-1.5 border border-[#e2dfd5] rounded-xl text-xs bg-white text-zinc-900 placeholder:text-zinc-400 tabular-nums font-sans focus:outline-none focus:border-[#183d2e] focus:ring-1 focus:ring-[#183d2e] transition"
             />
             {err.price && <p className="text-[11px] text-rose-600 mt-0.5">{err.price[0]}</p>}
           </div>
@@ -70,23 +70,32 @@ export function WishlistForm() {
           </div>
         </div>
 
-        <div className="flex gap-2 items-center">
-          <div className="flex-1">
+        <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+          <div className="sm:col-span-8">
             <input
               name="link"
               type="text"
               placeholder="Đường dẫn tham khảo (tuỳ chọn: https://...)"
               defaultValue={v.link}
-              className="w-full h-9 px-3 py-1.5 border border-zinc-200 rounded-lg text-xs bg-white text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition"
+              className="w-full h-9 px-3 py-1.5 border border-[#e2dfd5] rounded-xl text-xs bg-white text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-[#183d2e] focus:ring-1 focus:ring-[#183d2e] transition"
             />
           </div>
-          <button
-            type="submit"
-            disabled={pending}
-            className="px-4 h-9 rounded-lg bg-zinc-900 hover:bg-zinc-800 disabled:bg-zinc-400 text-white font-medium text-xs transition shrink-0 cursor-pointer"
-          >
-            {pending ? "Đang lưu..." : "+ Thêm món"}
-          </button>
+          <div className="sm:col-span-4 flex gap-2 items-center">
+            <input
+              name="targetDate"
+              type="date"
+              defaultValue={v.targetDate}
+              title="Hạn chót dự kiến mua (tuỳ chọn)"
+              className="w-full h-9 px-3 py-1.5 border border-[#e2dfd5] rounded-xl text-xs bg-white text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-[#183d2e] focus:ring-1 focus:ring-[#183d2e] transition"
+            />
+            <button
+              type="submit"
+              disabled={pending}
+              className="px-4 h-9 rounded-xl bg-[#183d2e] hover:bg-[#204e3b] disabled:bg-zinc-400 text-white font-medium text-xs transition shrink-0 cursor-pointer shadow-2xs"
+            >
+              {pending ? "Đang lưu..." : "+ Thêm"}
+            </button>
+          </div>
         </div>
       </form>
     </div>

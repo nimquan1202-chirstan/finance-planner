@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getDateRange } from "@/lib/finance";
+import { getDateRange, sanitizeCsvField } from "@/lib/finance";
 import { transactionFilterSchema } from "@/lib/validation";
 import { getSession } from "@/lib/dal";
 import type { Prisma } from "@/generated/prisma/client";
@@ -46,12 +46,12 @@ export async function GET(request: NextRequest) {
     const headers = ["id", "type", "amount", "description", "category", "date"];
     const csvLines = rows.map((r) =>
       [
-        r.id,
-        r.type,
+        sanitizeCsvField(r.id),
+        sanitizeCsvField(r.type),
         r.amount,
-        `"${(r.description ?? "").replace(/"/g, '""')}"`,
-        r.category,
-        new Date(r.date).toISOString(),
+        sanitizeCsvField(r.description ?? ""),
+        sanitizeCsvField(r.category),
+        sanitizeCsvField(new Date(r.date).toISOString()),
       ].join(","),
     );
     const csvContent = "\uFEFF" + [headers.join(","), ...csvLines].join("\n");

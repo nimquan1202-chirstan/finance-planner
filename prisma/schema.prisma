@@ -8,17 +8,21 @@ datasource db {
 }
 
 model User {
-  id            String         @id @default(cuid())
-  email         String         @unique
-  name          String
-  emailVerified Boolean        @default(false)
-  image         String?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @default(now()) @updatedAt
-  sessions      Session[]
-  accounts      Account[]
-  transactions  Transaction[]
-  wishlist      WishlistItem[]
+  id             String           @id @default(cuid())
+  email          String           @unique
+  name           String
+  emailVerified  Boolean          @default(false)
+  image          String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @default(now()) @updatedAt
+  ruleNeedsPct   Int              @default(50)
+  ruleWantsPct   Int              @default(30)
+  ruleSavingsPct Int              @default(20)
+  sessions       Session[]
+  accounts       Account[]
+  transactions   Transaction[]
+  wishlist       WishlistItem[]
+  budgets        CategoryBudget[]
 }
 
 model Session {
@@ -101,13 +105,29 @@ model Transaction {
 }
 
 model WishlistItem {
-  id        String   @id @default(cuid())
-  name      String
-  price     Float
-  priority  Priority @default(MEDIUM)
-  link      String?
-  purchased Boolean  @default(false)
-  createdAt DateTime @default(now())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String    @id @default(cuid())
+  name              String
+  price             Float
+  priority          Priority  @default(MEDIUM)
+  link              String?
+  purchased         Boolean   @default(false)
+  targetDate        DateTime?
+  notifiedMilestone Int       @default(0)
+  createdAt         DateTime  @default(now())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CategoryBudget {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category    Category
+  month       String
+  limitAmount Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, category, month])
+  @@index([userId, month])
 }
