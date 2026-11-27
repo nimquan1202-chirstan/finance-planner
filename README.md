@@ -6,10 +6,12 @@ Dự án được xây dựng tuân thủ chặt chẽ chương trình WebLab Tu
 
 ---
 
-## 👤 Thông tin sinh viên & Môn học
+## 👤 Thông tin sinh viên & Nộp bài
 - **Môn học:** PHY10615 – Phát triển ứng dụng Web (HK1 2026–2027), HCMUS
 - **Sinh viên:** Quân (`nimquan1202@gmail.com`)
-- **Tài khoản Demo có sẵn dữ liệu:**
+- **GitHub Repository:** [https://github.com/nimquan1202-chirstan/finance-planner](https://github.com/nimquan1202-chirstan/finance-planner) (Git tags: `fp1`, `fp2`, `fp3`, `v1.0`)
+- **Production URL (Vercel):** [https://finance-planner-kohl.vercel.app](https://finance-planner-kohl.vercel.app)
+- **Tài khoản Demo nghiệm thu (đã nạp sẵn dữ liệu):**
   - **Email:** `demo@phy10615.vn`
   - **Mật khẩu:** `Demo@123456`
 
